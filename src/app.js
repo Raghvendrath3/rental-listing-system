@@ -6,16 +6,21 @@ const app = express();
 // global middleware
 app.use(express.json());
 
+const testRoutes = require('./routes/test.routes');
 // routes
 app.use("/health", healthRoutes);
 
+app.use('/test', testRoutes);
+
 // fallback error handler (basic for now)
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({
+  const statusCode = err.statusCode || 500;
+
+  res.status(statusCode).json({
     status: "error",
-    message: "Internal Server Error"
+    message: err.message || "Internal Server Error"
   });
 });
+
 
 module.exports = app;
