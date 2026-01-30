@@ -12,6 +12,8 @@ app.use("/health", healthRoutes);
 
 app.use('/test', testRoutes);
 
+app.use('/listings', require('./routes/listing.routes'));
+
 // fallback error handler (basic for now)
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
