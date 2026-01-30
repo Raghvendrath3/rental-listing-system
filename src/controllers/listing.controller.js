@@ -1,4 +1,4 @@
-const {listingService, listingServiceById} = require('../services/listing.service');
+const {listingService, listingServiceById, postListingService, putListingService, deleteListingService} = require('../services/listing.service');
 
 const getListings = async (req, res, next) => {
   try {
@@ -8,7 +8,7 @@ const getListings = async (req, res, next) => {
     minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
     maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined
   };
-  const listings =  listingService(filters);
+  const listings = await listingService(filters);
 
   res.status(200).json({
     status: 'success',
@@ -23,7 +23,7 @@ const getListings = async (req, res, next) => {
 const getListingsById = async (req, res, next) => {
   try {
     const listingId = Number(req.params.id);
-    const listings = listingServiceById(listingId);
+    const listings = await listingServiceById(listingId);
 
     res.status(200).json({
       status: 'success',
@@ -34,5 +34,62 @@ const getListingsById = async (req, res, next) => {
   }
 }
 
+const postListings = async (req, res, next) => {
+  try {
+    const newListing = {
+      title: req.body.title,
+      type: req.body.type,
+      city: req.body.city,
+      area: req.body.area,
+      price: req.body.price,
+      isAvailable: req.body.isAvailable || true,
+      ownerId: req.body.ownerId
+    };
+    const listings = await postListingService(newListing);
+    res.status(201).json({
+      status: 'success',
+      data: listings
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
-module.exports = { getListings, getListingsById };
+const updateListing = async (req, res, next) => {
+  try {
+    const listingId = Number(req.params.id);
+    const updatedFields = {
+      title: req.body.title,
+      type: req.body.type,
+      city: req.body.city,
+      price: req.body.price,
+      area: req.body.area,
+      isAvailable: req.body.isAvailable
+    }
+    const updatedListing = await updateListingService(listingId, updatedFields);
+
+    res.status(200).json({
+      status: 'success',
+      data: updatedListing
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+const deleteListing = async (req, res, next) => {
+  try {
+    const listingId = Number(req.params.id);
+    const deletedListing = await deleteListingService(listingId);
+
+    res.status(200).json({
+      status: 'success',
+      data: deletedListing
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+
+module.exports = { getListings, getListingsById, postListings, updateListing, deleteListing };
