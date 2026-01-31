@@ -1,66 +1,68 @@
-const listingRepository = [{
-  id: 1,
-  title: "Cozy Apartment in Downtown",
-  type: "apartment",
-  city: "jabalpur",
-  area: "ranjhi",
-  price: 1200,
-  isAvailable: true,
-  ownerId: 101},
-  {
-    id: 2,
-    title: "Spacious House with Garden",
-    type: "house",
-    city: "jabalpur",
-    area: "tilhari",
-    price: 2500,
-    isAvailable: false,
-    ownerId: 102
-  },
-  {
-    id:3,
-    title: "Modern Room Near Park",
-    type: "room",
-    city: "jabalpur",
-    area: "madhuvan",
-    price: 500,
-    isAvailable: true,
-    ownerId: 103
-  }
-];
+const {pool} = require('../config/db');
 
-function findAll(){
-  return listingRepository;
+const findAll = async () => {
+  const listing = await pool.query(
+    `SELECT * FROM listings`
+  );
+  return listing.rows;
 };
 
-function findById(id){
-  return listingRepository.find(listing => listing.id === id);
-};
-
-function addListing(newListing){
-  const newId = listingRepository.length +1;
-  const listingToAdd = {id: newId, ...newListing};
-  listingRepository.push(listingToAdd);
-  return listingToAdd;
-}
-
-function updateListing(id, updatedFields){
-  const listing = findById(id);
-  if (!listing) {
+const findById = async (id) => {
+  const listing = await pool.query(
+    `SELECT * FROM listings WHERE id = $1`,
+    [id]
+  );
+  if (listing.rows.length === 0){
     return null;
   }
-  const updatedListing = {...listing, ...updatedFields};
-  const index = listingRepository.findIndex(listing => listing.id === id);
-  listingRepository[index] = updatedListing;
-  return updatedListing;
+  return listing.rows[0];
+};
+
+async function addListing(newListing){
+  const listingToAdd = {
+    title: newListing.title,
+    type: newListing.type,
+    city: newListing.city,
+    area: newListing.area,
+    price: newListing.price,
+    is_available: newListing.is_available || true,
+    owner_id: newListing.owner_id
+  };
+  const addedListing = await pool.query(
+    `INSERT INTO listings (title, type, city, area, price, is_available, owner_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    [listingToAdd.title, listingToAdd.type,
+       listingToAdd.city, listingToAdd.area, listingToAdd.price,
+       listingToAdd.is_available, listingToAdd.owner_id]
+  )
+  return addedListing.rows[0];
+}
+
+ async function updateListing(id, updatedFields){
+  const existingListing = await findById(id);
+
+  const updateListing = await pool.query(
+    `UPDATE listings SET title = $1, type = $2, city = $3, area = $4,
+     price = $5, is_available = $6, owner_id = $7 WHERE id = $8 RETURNING *`,
+    [
+      updatedFields.title || existingListing.title,
+      updatedFields.type || existingListing.type,
+      updatedFields.city || existingListing.city,
+      updatedFields.area || existingListing.area,
+      updatedFields.price || existingListing.price,
+      updatedFields.is_available !== undefined ? updatedFields.is_available : existingListing.is_available,
+      updatedFields.owner_id || existingListing.owner_id,
+      id
+    ]
+  );
+  return updateListing.rows[0];
 }
 
 function deleteListing(id){
-  const index = listingRepository.findIndex(listing => listing.id === id);
-  if (index === -1) {
-    return null;
-  }
-  return listingRepository.splice(index, 1)[0];
+ return pool.query(
+    `DELETE FROM listings WHERE id = $1 RETURNING *`,
+    [id]
+  );
 }
 
 module.exports = { findAll, findById, addListing, updateListing, deleteListing };

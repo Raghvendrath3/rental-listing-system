@@ -1,4 +1,4 @@
-const {findAll, findById, addListing} = require('../repositories/listing.repository');
+const {findAll, findById, addListing, updateListing, deleteListing} = require('../repositories/listing.repository');
 const AppError = require('../errors/AppErrors');
 
 function filterValidation(filters) {
@@ -12,9 +12,10 @@ function filterValidation(filters) {
     throw new AppError('maxPrice cannot be less than minPrice', 400);
   }
 }
-function listingService(filters) {
+async function listingService(filters) {
+  const lists = await findAll(); 
   filterValidation(filters);
-  let listings = findAll().filter(listing => listing.isAvailable === true);
+  let listings = lists.filter(listing => listing.is_available === true);
   if (filters.city) {
     listings = listings.filter(listing => listing.city === filters.city);
   }
@@ -45,17 +46,17 @@ function listingServiceById(id) {
 }
 
 function postValidation(newListing){
-  if (!newListing.title || !newListing.type || !newListing.city || !newListing.area || !newListing.price || !newListing.ownerId){
+  if (!newListing.title || !newListing.type || !newListing.city || !newListing.area || !newListing.price || !newListing.owner_id){
     throw new AppError('Missing required listing fields', 400);
   }
   if (isNaN(newListing.price) || newListing.price < 0){
     throw new AppError('Invalid price value', 400);
   }
-  if (typeof newListing.isAvailable !== 'boolean' && newListing.isAvailable !== undefined){
-    throw new AppError('isAvailable must be a boolean', 400);
+  if (typeof newListing.is_available !== 'boolean' && newListing.is_available !== undefined){
+    throw new AppError('is_available must be a boolean', 400);
   }
-  if (isNaN(newListing.ownerId) || newListing.ownerId <=0){
-    throw new AppError('Invalid ownerId value', 400);
+  if (isNaN(newListing.owner_id) || newListing.owner_id <=0){
+    throw new AppError('Invalid owner_id value', 400);
   }
 }
 
@@ -69,23 +70,24 @@ const postListingService = (newListing) => {
   return addedListing;
 }
 
-const updateListingService = (id, updatedFields) => {
+const updateListingService = async (id, updatedFields) => {
   idVarification(id);
-  const listing = findById(id);
+  const listing = await findById(id);
   if (!listing) {
     throw new AppError('Listing does not exist', 404);
   }
-  const updatedListing = {...listing, ...updatedFields};
+  const updatedListing = await updateListing(id, updatedFields);
   return updatedListing;
 }
 
-const deleteListingService = (id) => {
+const deleteListingService = async (id) => {
   idVarification(id);
-  const listing = findById(id);
+  const listing = await findById(id);
   if (!listing) {
     throw new AppError('Listing does not exist', 404);
   }
-  return listing;
+  const deletedListing = await deleteListing(id);
+  return deletedListing;
 }
 
 module.exports = { listingService, listingServiceById, postListingService, updateListingService, deleteListingService };
