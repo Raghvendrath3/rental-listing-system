@@ -1,4 +1,4 @@
-const {listingService, listingServiceById, postListingService, putListingService, deleteListingService} = require('../services/listing.service');
+const {listingService, listingServiceById, postListingService, updateListingService, deleteListingService} = require('../services/listing.service');
 
 const getListings = async (req, res, next) => {
   try {
@@ -9,6 +9,14 @@ const getListings = async (req, res, next) => {
     maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined
   };
   const listings = await listingService(filters);
+
+   // Check if listings is null, undefined, or an empty array
+  if (!listings || (Array.isArray(listings) && listings.length === 0)) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'No listings found matching your criteria'
+    });
+  }
 
   res.status(200).json({
     status: 'success',
@@ -24,6 +32,14 @@ const getListingsById = async (req, res, next) => {
   try {
     const listingId = Number(req.params.id);
     const listings = await listingServiceById(listingId);
+
+     // Check if listings is null, undefined, or an empty array
+    if (!listings || (Array.isArray(listings) && listings.length === 0)) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No listings found matching your criteria'
+      });
+    }
 
     res.status(200).json({
       status: 'success',
@@ -42,8 +58,8 @@ const postListings = async (req, res, next) => {
       city: req.body.city,
       area: req.body.area,
       price: req.body.price,
-      isAvailable: req.body.isAvailable || true,
-      ownerId: req.body.ownerId
+      is_available: req.body.is_available || true,
+      owner_id: req.body.owner_id
     };
     const listings = await postListingService(newListing);
     res.status(201).json({
@@ -64,7 +80,7 @@ const updateListing = async (req, res, next) => {
       city: req.body.city,
       price: req.body.price,
       area: req.body.area,
-      isAvailable: req.body.isAvailable
+      is_available: req.body.is_available
     }
     const updatedListing = await updateListingService(listingId, updatedFields);
 
