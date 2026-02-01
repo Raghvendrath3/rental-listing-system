@@ -1,4 +1,11 @@
-const {findAll, findById, addListing, updateListing, deleteListing} = require('../repositories/listing.repository');
+const {
+  findAll, 
+  findById, 
+  addListing, 
+  updateListing, 
+  deleteListing, 
+  findAllPaginated
+} = require('../repositories/listing.repository');
 const AppError = require('../errors/AppErrors');
 
 function filterValidation(filters) {
@@ -12,9 +19,18 @@ function filterValidation(filters) {
     throw new AppError('maxPrice cannot be less than minPrice', 400);
   }
 }
+
+//testing purpose
+
+async function getAllListings(page, limit){
+  const offset = (page - 1) * limit;
+  const listings = await findAllPaginated(limit, offset);
+  return listings;
+}
+
 async function listingService(filters) {
-  const lists = await findAll(); 
   filterValidation(filters);
+  const lists = await findAll(); 
   let listings = lists.filter(listing => listing.is_available === true);
   if (filters.city) {
     listings = listings.filter(listing => listing.city === filters.city);
@@ -36,20 +52,20 @@ const idVarification = (id) => {
     throw new AppError('Invalid Listing ID', 400);
   }
 }
-function listingServiceById(id) {
+async function listingServiceById(id) {
   idVarification(id);
-  const listing = findById(id);
+  const listing = await findById(id);
   if (!listing){
     throw new AppError('Listing does not exist', 404);
   }
   return listing;
 }
 
-function postValidation(newListing){
+function postValidation(newListing){ 
   if (!newListing.title || !newListing.type || !newListing.city || !newListing.area || !newListing.price || !newListing.owner_id){
     throw new AppError('Missing required listing fields', 400);
   }
-  if (isNaN(newListing.price) || newListing.price < 0){
+  if (newListing.price === undefined || newListing.price === null){
     throw new AppError('Invalid price value', 400);
   }
   if (typeof newListing.is_available !== 'boolean' && newListing.is_available !== undefined){
@@ -61,9 +77,9 @@ function postValidation(newListing){
 }
 
 
-const postListingService = (newListing) => {
+const postListingService = async (newListing) => {
   postValidation(newListing);
-  const addedListing = addListing(newListing);
+  const addedListing = await addListing(newListing);
   if(!addedListing){
     throw new AppError('Failed to add new listing', 500);
   }
@@ -90,4 +106,11 @@ const deleteListingService = async (id) => {
   return deletedListing;
 }
 
-module.exports = { listingService, listingServiceById, postListingService, updateListingService, deleteListingService };
+module.exports = { 
+  listingService, 
+  listingServiceById, 
+  postListingService,
+  updateListingService, 
+  deleteListingService, 
+  getAllListings 
+};

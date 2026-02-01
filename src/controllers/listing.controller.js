@@ -1,4 +1,24 @@
-const {listingService, listingServiceById, postListingService, updateListingService, deleteListingService} = require('../services/listing.service');
+const {
+  listingService, 
+  listingServiceById, 
+  postListingService, 
+  updateListingService, 
+  deleteListingService,
+  getAllListings
+} = require('../services/listing.service');
+
+//testing purpose
+
+async function getEachListings(req, res, next){
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const listings = await getAllListings(page, limit);
+  return res.status(200).json({
+    status: 'success',
+    results: listings.length,
+    data: listings
+  });
+}
 
 const getListings = async (req, res, next) => {
   try {
@@ -108,4 +128,11 @@ const deleteListing = async (req, res, next) => {
 }
 
 
-module.exports = { getListings, getListingsById, postListings, updateListing, deleteListing };
+module.exports = { 
+  getListings, 
+  getListingsById, 
+  postListings, 
+  updateListing, 
+  deleteListing, 
+  getEachListings
+};

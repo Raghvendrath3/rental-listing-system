@@ -7,6 +7,16 @@ const findAll = async () => {
   return listing.rows;
 };
 
+//Just testing purpose
+
+async function findAllPaginated(limit, offset){
+  const listing = await pool.query(
+    `SELECT * FROM listings LIMIT $1 OFFSET $2`,
+    [limit, offset]
+  );
+  return listing.rows;
+}
+
 const findById = async (id) => {
   const listing = await pool.query(
     `SELECT * FROM listings WHERE id = $1`,
@@ -58,11 +68,19 @@ async function addListing(newListing){
   return updateListing.rows[0];
 }
 
-function deleteListing(id){
- return pool.query(
+async function deleteListing(id){
+ const result = await pool.query(
     `DELETE FROM listings WHERE id = $1 RETURNING *`,
     [id]
   );
+  return result.rows[0];
 }
 
-module.exports = { findAll, findById, addListing, updateListing, deleteListing };
+module.exports = { 
+  findAll, 
+  findById, 
+  addListing, 
+  updateListing, 
+  deleteListing, 
+  findAllPaginated 
+};
