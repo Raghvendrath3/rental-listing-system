@@ -3,55 +3,62 @@ const {
   findById, 
   addListing, 
   updateListing, 
-  deleteListing, 
-  findAllPaginated
+  deleteListing
 } = require('../repositories/listing.repository');
 const AppError = require('../errors/AppErrors');
 
-function filterValidation(filters) {
-  if (filters.minPrice !== undefined && (isNaN(filters.minPrice) || filters.minPrice < 0)) {
-    throw new AppError('Invalid minPrice value', 400);
-  }
-  if (filters.maxPrice !== undefined && (isNaN(filters.maxPrice) || filters.maxPrice < 0)) {
-    throw new AppError('Invalid maxPrice value', 400);
-  }
-  if (filters.maxPrice < filters.minPrice) {
-    throw new AppError('maxPrice cannot be less than minPrice', 400);
+// Validation for filters
+function filterValidation(filters){
+  if (filters.priceMin !== undefined && filters.priceMax !== undefined){
+    const minPrice = filters.priceMin;
+    const maxPrice = filters.priceMax;
+    if(minPrice < 0 || maxPrice < 0 || maxPrice <= minPrice){
+      throw new AppError("invalid minimum price amount", 400);
+    }
   }
 }
 
-//testing purpose
-
-async function getAllListings(page, limit){
-  const offset = (page - 1) * limit;
-  const listings = await findAllPaginated(limit, offset);
-  return listings;
+// Validation for pagination
+function pageValidation(filters, totalPages){
+  if (filters.page <= 0 || isNaN(filters.page)){
+    throw new AppError("Invalid page number", 400);
+  }
+  if (filters.limit <= 0 || isNaN(filters.limit)){
+    throw new AppError("Invalid limit value", 400);
+  }
+  if (filters.page > totalPages){
+    throw new AppError("Page number exceeds total pages", 400);
+  }
 }
 
-async function listingService(filters) {
+// Service to get listings with filters and pagination
+async function listingService(filters){
   filterValidation(filters);
-  const lists = await findAll(); 
-  let listings = lists.filter(listing => listing.is_available === true);
-  if (filters.city) {
-    listings = listings.filter(listing => listing.city === filters.city);
-  }
-  if (filters.type) {
-    listings = listings.filter(listing => listing.type === filters.type);
-  }
-  if (filters.minPrice !== undefined) {
-    listings = listings.filter(listing => listing.price >= filters.minPrice);
-  }
-  if (filters.maxPrice !== undefined) {
-    listings = listings.filter(listing => listing.price <= filters.maxPrice);
-  }
-  return listings;
+  const offset = (filters.page - 1) * filters.limit;
+
+  const listings = await findAll(filters, offset);
+
+  const total = listings.count;
+  const totalPages = Math.ceil(total / filters.limit);
+  pageValidation(filters, totalPages);// validate after totalPages is calculated
+  const page = filters.page;
+
+  return {
+    listings: listings.rows,
+    count: total,
+    totalPages,
+    page
+  };
 }
 
+// Validation for ID
 const idVarification = (id) => {
   if (isNaN(id) || id <= 0){
     throw new AppError('Invalid Listing ID', 400);
   }
 }
+
+// Service to get listing by ID
 async function listingServiceById(id) {
   idVarification(id);
   const listing = await findById(id);
@@ -61,6 +68,7 @@ async function listingServiceById(id) {
   return listing;
 }
 
+// Validation for new listing data
 function postValidation(newListing){ 
   if (!newListing.title || !newListing.type || !newListing.city || !newListing.area || !newListing.price || !newListing.owner_id){
     throw new AppError('Missing required listing fields', 400);
@@ -76,7 +84,7 @@ function postValidation(newListing){
   }
 }
 
-
+// Service to create a new listing
 const postListingService = async (newListing) => {
   postValidation(newListing);
   const addedListing = await addListing(newListing);
@@ -86,6 +94,7 @@ const postListingService = async (newListing) => {
   return addedListing;
 }
 
+// Service to update an existing listing
 const updateListingService = async (id, updatedFields) => {
   idVarification(id);
   const listing = await findById(id);
@@ -96,6 +105,7 @@ const updateListingService = async (id, updatedFields) => {
   return updatedListing;
 }
 
+// Service to delete a listing
 const deleteListingService = async (id) => {
   idVarification(id);
   const listing = await findById(id);
@@ -111,6 +121,5 @@ module.exports = {
   listingServiceById, 
   postListingService,
   updateListingService, 
-  deleteListingService, 
-  getAllListings 
+  deleteListingService
 };

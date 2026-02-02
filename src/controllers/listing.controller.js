@@ -3,51 +3,37 @@ const {
   listingServiceById, 
   postListingService, 
   updateListingService, 
-  deleteListingService,
-  getAllListings
+  deleteListingService
 } = require('../services/listing.service');
 
-//testing purpose
-
-async function getEachListings(req, res, next){
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const listings = await getAllListings(page, limit);
-  return res.status(200).json({
-    status: 'success',
-    results: listings.length,
-    data: listings
-  });
-}
-
+// Getting all listings with pagination and filters
 const getListings = async (req, res, next) => {
   try {
     const filters = {
-    city: req.query.city,
-    type: req.query.type,
-    minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
-    maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined
-  };
-  const listings = await listingService(filters);
-
-   // Check if listings is null, undefined, or an empty array
-  if (!listings || (Array.isArray(listings) && listings.length === 0)) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'No listings found matching your criteria'
+      city: req.query.city,
+      type: req.query.type,
+      priceMin: req.query.priceMin ? Number(req.query.priceMin) : undefined,
+      priceMax: req.query.priceMax ? Number(req.query.priceMax) : undefined,
+      page: req.query.page || 1,
+      limit: req.query.limit || 10
+    };
+    const listings = await listingService(filters);
+    return res.status(200).json({
+      status: 'success',
+      meta: {
+        page: listings.page,
+        limit: Number(filters.limit),
+        totalItems: listings.count,
+        totalPages: listings.totalPages,
+      },
+      data: listings.listings
     });
-  }
-
-  res.status(200).json({
-    status: 'success',
-    results: listings.length,
-    data: listings
-  });
   } catch (error) {
     next(error);
   }
 }
 
+// Getting a listing by ID
 const getListingsById = async (req, res, next) => {
   try {
     const listingId = Number(req.params.id);
@@ -70,6 +56,7 @@ const getListingsById = async (req, res, next) => {
   }
 }
 
+// Creating a new listing
 const postListings = async (req, res, next) => {
   try {
     const newListing = {
@@ -91,6 +78,7 @@ const postListings = async (req, res, next) => {
   }
 }
 
+// Updating an existing listing
 const updateListing = async (req, res, next) => {
   try {
     const listingId = Number(req.params.id);
@@ -113,6 +101,7 @@ const updateListing = async (req, res, next) => {
   }
 }
 
+// Deleting a listing
 const deleteListing = async (req, res, next) => {
   try {
     const listingId = Number(req.params.id);
@@ -133,6 +122,5 @@ module.exports = {
   getListingsById, 
   postListings, 
   updateListing, 
-  deleteListing, 
-  getEachListings
+  deleteListing
 };
