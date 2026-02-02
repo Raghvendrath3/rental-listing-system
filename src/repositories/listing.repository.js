@@ -1,22 +1,44 @@
 const {pool} = require('../config/db');
 
-const findAll = async () => {
-  const listing = await pool.query(
-    `SELECT * FROM listings`
-  );
-  return listing.rows;
-};
+// Function to get all listings with filters and pagination
+async function findAll(filters, offset) {
+  let filterQuery = `SELECT * FROM listings`;
+  let placeholder = 1;
+  let values = [];
 
-//Just testing purpose
+  const filtersArray = [];
+  
+  if (filters.city) {
+    filtersArray.push(`city = $${placeholder++}`);
+    values.push(filters.city);
+  }
+  if (filters.type) {
+    filtersArray.push(`type = $${placeholder++}`);
+    values.push(filters.type);
+  }
+  if (filters.priceMin !== undefined && filters.priceMax !== undefined) {
+    filtersArray.push(`price >= $${placeholder++}`);
+    filtersArray.push(`price <= $${placeholder++}`);
+    values.push(filters.priceMin, filters.priceMax);
+  }
 
-async function findAllPaginated(limit, offset){
-  const listing = await pool.query(
-    `SELECT * FROM listings LIMIT $1 OFFSET $2`,
-    [limit, offset]
-  );
-  return listing.rows;
+  if (filtersArray.length > 0) {
+    filterQuery += ' WHERE ' + filtersArray.join(' AND ');
+  }
+
+  const count = await pool.query(`SELECT COUNT(*) FROM listings` + 
+    (filtersArray.length > 0 ? ' WHERE ' + filtersArray.join(' AND ') : ''), values);
+  
+  const finalQuery = `${filterQuery} LIMIT $${placeholder++} OFFSET $${placeholder++}`;
+  
+  const listing = await pool.query(finalQuery, [...values, filters.limit, offset]);
+  return {
+    rows: listing.rows,
+    count: count.rows[0].count
+  };
 }
 
+// Function to get a listing by ID
 const findById = async (id) => {
   const listing = await pool.query(
     `SELECT * FROM listings WHERE id = $1`,
@@ -28,6 +50,7 @@ const findById = async (id) => {
   return listing.rows[0];
 };
 
+// Function to add a new listing
 async function addListing(newListing){
   const listingToAdd = {
     title: newListing.title,
@@ -38,6 +61,7 @@ async function addListing(newListing){
     is_available: newListing.is_available || true,
     owner_id: newListing.owner_id
   };
+
   const addedListing = await pool.query(
     `INSERT INTO listings (title, type, city, area, price, is_available, owner_id)
      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
@@ -48,6 +72,7 @@ async function addListing(newListing){
   return addedListing.rows[0];
 }
 
+// Function to update an existing listing
  async function updateListing(id, updatedFields){
   const existingListing = await findById(id);
 
@@ -68,6 +93,7 @@ async function addListing(newListing){
   return updateListing.rows[0];
 }
 
+// Function to delete a listing
 async function deleteListing(id){
  const result = await pool.query(
     `DELETE FROM listings WHERE id = $1 RETURNING *`,
@@ -81,6 +107,5 @@ module.exports = {
   findById, 
   addListing, 
   updateListing, 
-  deleteListing, 
-  findAllPaginated 
+  deleteListing
 };

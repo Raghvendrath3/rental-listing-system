@@ -1,10 +1,10 @@
 const express = require('express');
-const {getListings, getListingsById, getEachListings} = require('../controllers/listing.controller');
+const {getListings, getListingsById} = require('../controllers/listing.controller');
 const {postListings, updateListing, deleteListing} = require('../controllers/listing.controller');
 
 const router = express.Router();
 
-router.get('/', getEachListings);
+router.get('/', getListings);
 
 router.get('/:id', getListingsById);
 
