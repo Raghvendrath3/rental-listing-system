@@ -4,8 +4,20 @@ const {
   addListing, 
   updateListing, 
   deleteListing
-} = require('../repositories/listing.repository');
+} = require('../repositories/listings.repository');
 const AppError = require('../errors/AppErrors');
+const { assertOwnerOrAdmin } = require('./authorization');
+
+
+/**
+ * Invariants:
+ * - listings.owner_id always references users.id (DB enforced)
+ * - only owner or admin may modify a listing
+ * - admin may modify any listing
+ * - ownership checks live in service layer
+ * - role checks for route access live in middleware
+ */
+
 
 // Validation for filters
 function filterValidation(filters){
@@ -79,13 +91,11 @@ function postValidation(newListing){
   if (typeof newListing.is_available !== 'boolean' && newListing.is_available !== undefined){
     throw new AppError('is_available must be a boolean', 400);
   }
-  if (isNaN(newListing.owner_id) || newListing.owner_id <=0){
-    throw new AppError('Invalid owner_id value', 400);
-  }
 }
 
 // Service to create a new listing
-const postListingService = async (newListing) => {
+const postListingService = async (actor, newListing) => {
+  assertOwnerOrAdmin(listing, actor, 'listing');
   postValidation(newListing);
   const addedListing = await addListing(newListing);
   if(!addedListing){
@@ -95,9 +105,14 @@ const postListingService = async (newListing) => {
 }
 
 // Service to update an existing listing
-const updateListingService = async (id, updatedFields) => {
+const updateListingService = async (id, updatedFields, actor) => {
   idVarification(id);
+  assertOwnerOrAdmin(listing, actor, 'listing');
   const listing = await findById(id);
+
+  if (actor.role !== "admin" && listing.owner_id !== actor.id) {
+    throw new AppError("Not your listing", 403);
+  }
   if (!listing) {
     throw new AppError('Listing does not exist', 404);
   }
@@ -106,9 +121,14 @@ const updateListingService = async (id, updatedFields) => {
 }
 
 // Service to delete a listing
-const deleteListingService = async (id) => {
+const deleteListingService = async (id, actor) => {
   idVarification(id);
+  assertOwnerOrAdmin(listing, actor, 'listing');
   const listing = await findById(id);
+
+  if (actor.role !== "admin" && listing.owner_id !== actor.id) {
+    throw new AppError("Not your listing", 403);
+  }
   if (!listing) {
     throw new AppError('Listing does not exist', 404);
   }

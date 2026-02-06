@@ -4,7 +4,7 @@ const {
   postListingService, 
   updateListingService, 
   deleteListingService
-} = require('../services/listing.service');
+} = require('../services/listings.service');
 
 // Getting all listings with pagination and filters
 const getListings = async (req, res, next) => {
@@ -59,16 +59,21 @@ const getListingsById = async (req, res, next) => {
 // Creating a new listing
 const postListings = async (req, res, next) => {
   try {
-    const newListing = {
-      title: req.body.title,
-      type: req.body.type,
-      city: req.body.city,
-      area: req.body.area,
-      price: req.body.price,
-      is_available: req.body.is_available || true,
-      owner_id: req.body.owner_id
+    const actor = {
+      id: req.user.id,
+      role: req.user.role
     };
-    const listings = await postListingService(newListing);
+    const payload = req.body.payload;
+    const newListing = {
+      title: payload.title,
+      type: payload.type,
+      city: payload.city,
+      area: payload.area,
+      price: payload.price,
+      is_available: payload.is_available || true,
+      owner_id: actor.id
+    };
+    const listings = await postListingService(actor, newListing);
     res.status(201).json({
       status: 'success',
       data: listings
@@ -81,6 +86,10 @@ const postListings = async (req, res, next) => {
 // Updating an existing listing
 const updateListing = async (req, res, next) => {
   try {
+    const actor = {
+      id: req.user.id,
+      role: req.user.role
+    }
     const listingId = Number(req.params.id);
     const updatedFields = {
       title: req.body.title,
@@ -90,7 +99,7 @@ const updateListing = async (req, res, next) => {
       area: req.body.area,
       is_available: req.body.is_available
     }
-    const updatedListing = await updateListingService(listingId, updatedFields);
+    const updatedListing = await updateListingService(listingId, updatedFields, actor);
 
     res.status(200).json({
       status: 'success',
@@ -104,8 +113,12 @@ const updateListing = async (req, res, next) => {
 // Deleting a listing
 const deleteListing = async (req, res, next) => {
   try {
+    const actor = {
+      id: req.user.id,
+      role: req.user.role
+    }
     const listingId = Number(req.params.id);
-    const deletedListing = await deleteListingService(listingId);
+    const deletedListing = await deleteListingService(listingId, actor);
 
     res.status(200).json({
       status: 'success',

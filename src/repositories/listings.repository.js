@@ -78,7 +78,7 @@ async function addListing(newListing){
 
   const updateListing = await pool.query(
     `UPDATE listings SET title = $1, type = $2, city = $3, area = $4,
-     price = $5, is_available = $6, owner_id = $7 WHERE id = $8 RETURNING *`,
+     price = $5, is_available = $6 WHERE id = $7 RETURNING *`,
     [
       updatedFields.title || existingListing.title,
       updatedFields.type || existingListing.type,
@@ -86,7 +86,6 @@ async function addListing(newListing){
       updatedFields.area || existingListing.area,
       updatedFields.price || existingListing.price,
       updatedFields.is_available !== undefined ? updatedFields.is_available : existingListing.is_available,
-      updatedFields.owner_id || existingListing.owner_id,
       id
     ]
   );
