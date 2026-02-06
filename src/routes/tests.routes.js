@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { throwTestError } = require('../controllers/test.controller');
+const { throwTestError } = require('../controllers/tests.controller');
 
 router.get('/error', throwTestError);
 

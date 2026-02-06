@@ -1,18 +1,23 @@
 const express = require("express");
-const healthRoutes = require("./routes/health.routes");
+const healthRoutes = require("./routes/healths.routes");
+const testRoutes = require('./routes/tests.routes');
+
+const cors = require('cors');
 
 const app = express();
 
 // global middleware
 app.use(express.json());
+app.use(cors());
 
-const testRoutes = require('./routes/test.routes');
 // routes
 app.use("/health", healthRoutes);
 
 app.use('/test', testRoutes);
 
-app.use('/listings', require('./routes/listing.routes'));
+app.use('/listings', require('./routes/listings.routes'));
+
+app.use('/users', require('./routes/users.routes'));
 
 // fallback error handler (basic for now)
 app.use((err, req, res, next) => {
