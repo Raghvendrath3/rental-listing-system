@@ -1,0 +1,67 @@
+Date : 2026-02-07 21:48:21
+Directory : c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem
+Total : 26 files,  2322 codes, 49 comments, 172 blanks, all 2543 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JSON       |          5 |      1,570 |          0 |          2 |      1,572 |
+| JavaScript |         20 |        655 |         49 |        121 |        825 |
+| Markdown   |          1 |         97 |          0 |         49 |        146 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                     | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                        |         26 |      2,322 |         49 |        172 |      2,543 |
+| . (Files)                                                                                                                |          3 |      1,642 |          0 |         51 |      1,693 |
+| .postman                                                                                                                 |          1 |         12 |          0 |          0 |         12 |
+| postman                                                                                                                  |          2 |         13 |          0 |          0 |         13 |
+| postman\environments                                                                                                     |          1 |          6 |          0 |          0 |          6 |
+| postman\globals                                                                                                          |          1 |          7 |          0 |          0 |          7 |
+| src                                                                                                                      |         20 |        655 |         49 |        121 |        825 |
+| src (Files)                                                                                                              |          2 |         30 |          3 |         18 |         51 |
+| src\config                                                                                                               |          1 |         20 |          0 |          3 |         23 |
+| src\controllers                                                                                                          |          4 |        192 |          7 |         19 |        218 |
+| src\errors                                                                                                               |          1 |          8 |          0 |          1 |          9 |
+| src\middlewares                                                                                                          |          2 |         30 |          0 |          2 |         32 |
+| src\repositories                                                                                                         |          2 |        127 |          9 |         21 |        157 |
+| src\routes                                                                                                               |          4 |         31 |          0 |         18 |         49 |
+| src\scripts                                                                                                              |          1 |         17 |          1 |          5 |         23 |
+| src\services                                                                                                             |          3 |        200 |         29 |         34 |        263 |
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                                                 | language   | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\.postman\config.json                                          | JSON       |         12 |          0 |          0 |         12 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\README.md                                                     | Markdown   |         97 |          0 |         49 |        146 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\package-lock.json                                             | JSON       |      1,520 |          0 |          1 |      1,521 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\package.json                                                  | JSON       |         25 |          0 |          1 |         26 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\postman\environments\New_Environment.postman_environment.json | JSON       |          6 |          0 |          0 |          6 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\postman\globals\workspace.postman_globals.json                | JSON       |          7 |          0 |          0 |          7 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\app.js                                                    | JavaScript |         19 |          3 |         12 |         34 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\config\db.js                                              | JavaScript |         20 |          0 |          3 |         23 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\controllers\healths.controller.js                         | JavaScript |          8 |          0 |          2 |         10 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\controllers\listings.controller.js                        | JavaScript |        122 |          6 |         11 |        139 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\controllers\tests.controller.js                           | JavaScript |          5 |          1 |          2 |          8 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\controllers\users.controller.js                           | JavaScript |         57 |          0 |          4 |         61 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\errors\AppErrors.js                                       | JavaScript |          8 |          0 |          1 |          9 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\middlewares\requireAuth.js                                | JavaScript |         18 |          0 |          0 |         18 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\middlewares\requireRole.js                                | JavaScript |         12 |          0 |          2 |         14 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\repositories\listings.repository.js                       | JavaScript |         93 |          9 |         15 |        117 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\repositories\users.repository.js                          | JavaScript |         34 |          0 |          6 |         40 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\routes\healths.routes.js                                  | JavaScript |          5 |          0 |          4 |          9 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\routes\listings.routes.js                                 | JavaScript |         12 |          0 |          7 |         19 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\routes\tests.routes.js                                    | JavaScript |          5 |          0 |          2 |          7 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\routes\users.routes.js                                    | JavaScript |          9 |          0 |          5 |         14 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\scripts\seedAdmin.js                                      | JavaScript |         17 |          1 |          5 |         23 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\server.js                                                 | JavaScript |         11 |          0 |          6 |         17 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\services\authorization.js                                 | JavaScript |         16 |          0 |          5 |         21 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\services\listings.service.js                              | JavaScript |        110 |         17 |         18 |        145 |
+| c:\Users\AC\Desktop\Workplace\Projects\rentalListingSystem\src\services\users.service.js                                 | JavaScript |         74 |         12 |         11 |         97 |
+| Total                                                                                                                    |            |      2,322 |         49 |        172 |      2,543 |
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
