@@ -1,0 +1,361 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+@import "tailwindcss";
+
+/* :root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+} */
+
+/* ─── Auth Layout Styles ────────────────────────────────────────────────────
+   Place this in globals.css OR in a dedicated auth.css imported by layout.tsx
+   ─────────────────────────────────────────────────────────────────────────── */
+
+
+:root {
+  --bg:         #0a0a0a;
+  --surface:    #111111;
+  --border:     #222222;
+  --accent:     #d4a853;
+  --accent-dim: #9a7538;
+  --text:       #e8e0d0;
+  --muted:      #6a6258;
+  --error:      #ef4444;
+  --valid:      #22c55e;
+  --radius:     6px;
+}
+
+/* ── Page Shell ── */
+.page {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: 'IBM Plex Mono', monospace;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(212,168,83,0.06) 0%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px);
+}
+
+/* ── Card ── */
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 2rem;
+  box-shadow: 0 0 40px rgba(212,168,83,0.04), 0 20px 60px rgba(0,0,0,0.6);
+  animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Card Header ── */
+.card-header { text-align: center; margin-bottom: 2rem; }
+
+.logo-mark {
+  font-size: 2rem;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 0.75rem;
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.heading {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.subheading {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Server Error ── */
+.server-error {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  color: var(--error);
+  font-size: 0.8rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Form Fields ── */
+.field-group { margin-bottom: 1.25rem; }
+
+.label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 0 2px rgba(212,168,83,0.12);
+}
+
+.input-wrapper.input-error                { border-color: rgba(239,68,68,0.5); }
+.input-wrapper.input-error:focus-within   { box-shadow: 0 0 0 2px rgba(239,68,68,0.12); }
+.input-wrapper.input-valid                { border-color: rgba(34,197,94,0.35); }
+
+.input-icon {
+  padding: 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  padding: 0.75rem 0.5rem;
+  width: 100%;
+}
+
+.input::placeholder { color: var(--muted); }
+
+.check-icon {
+  padding: 0 0.75rem;
+  color: var(--valid);
+  font-size: 0.85rem;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  padding: 0 0.75rem;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s;
+  line-height: 1;
+}
+.toggle-btn:hover { color: var(--accent); }
+
+.field-error {
+  font-size: 0.72rem;
+  color: var(--error);
+  margin-top: 0.4rem;
+  letter-spacing: 0.02em;
+}
+
+/* ── Password Strength ── */
+.strength-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.strength-bar-track {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+}
+
+.strength-segment {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.strength-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+/* ── Buttons ── */
+.btn {
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--radius);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.05em;
+  border: none;
+  margin-top: 0.5rem;
+}
+
+.btn-primary { background: var(--accent); color: #0a0a0a; }
+
+.btn-primary:hover:not(:disabled) {
+  background: #e6bc6a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(212,168,83,0.3);
+}
+
+.btn-primary:active:not(:disabled) { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+.btn-outline:hover { background: rgba(212,168,83,0.08); }
+
+/* ── Spinner ── */
+.spinner-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(10,10,10,0.3);
+  border-top-color: #0a0a0a;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Footer ── */
+.footer-text {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 1.5rem;
+}
+
+.link { color: var(--accent); text-decoration: none; font-weight: 600; }
+.link:hover { text-decoration: underline; }
+
+/* ── Success Card ── */
+.success-card { text-align: center; }
+
+.success-icon {
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--accent);
+  margin: 0 auto 1.25rem;
+  animation: scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.success-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.success-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.4rem;
+  word-break: break-all;
+}
+
+.success-meta {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.meta-pill {
+  background: rgba(212,168,83,0.1);
+  border: 1px solid rgba(212,168,83,0.2);
+  color: var(--accent);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .card { padding: 2rem 1.25rem; }
+}
