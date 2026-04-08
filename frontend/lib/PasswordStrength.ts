@@ -1,23 +1,71 @@
-import { PasswordStrength } from '@/types/auth.types';
+export interface PasswordStrength {
+  score: number; // 0-4
+  label: string;
+  color: string;
+  feedback: string[];
+}
 
-const LEVELS: PasswordStrength[] = [
-  { score: 0, label: '',            color: '' },
-  { score: 1, label: 'Very Weak',   color: '#ef4444' },
-  { score: 2, label: 'Weak',        color: '#f97316' },
-  { score: 3, label: 'Fair',        color: '#eab308' },
-  { score: 4, label: 'Strong',      color: '#84cc16' },
-  { score: 5, label: 'Very Strong', color: '#22c55e' },
-];
-
-export function getPasswordStrength(password: string): PasswordStrength {
-  if (!password) return LEVELS[0];
-
+export function calculatePasswordStrength(password: string): PasswordStrength {
   let score = 0;
-  if (password.length >= 8) score++;
-  if (/[a-z]/.test(password))  score++;
-  if (/[A-Z]/.test(password))  score++;
-  if (/\d/.test(password))     score++;
-  if (/[\W_]/.test(password))  score++;
+  const feedback: string[] = [];
 
-  return LEVELS[score] ?? LEVELS[0];
+  if (!password) {
+    return {
+      score: 0,
+      label: 'Very Weak',
+      color: 'bg-red-500',
+      feedback: ['Password is required'],
+    };
+  }
+
+  // Length checks
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (password.length >= 16) score++;
+
+  // Character variety checks
+  if (/[a-z]/.test(password)) {
+    score++;
+  } else {
+    feedback.push('Add lowercase letters');
+  }
+
+  if (/[A-Z]/.test(password)) {
+    score++;
+  } else {
+    feedback.push('Add uppercase letters');
+  }
+
+  if (/[0-9]/.test(password)) {
+    score++;
+  } else {
+    feedback.push('Add numbers');
+  }
+
+  if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    score++;
+  } else {
+    feedback.push('Add special characters for extra security');
+  }
+
+  // Cap score at 4
+  score = Math.min(score, 4);
+
+  // Determine strength level
+  const strengths = [
+    { label: 'Very Weak', color: 'bg-red-500' },
+    { label: 'Weak', color: 'bg-orange-500' },
+    { label: 'Fair', color: 'bg-yellow-500' },
+    { label: 'Good', color: 'bg-blue-500' },
+    { label: 'Strong', color: 'bg-green-500' },
+  ];
+
+  const strengthLevel = strengths[score];
+
+  return {
+    score,
+    label: strengthLevel.label,
+    color: strengthLevel.color,
+    feedback: feedback.length > 0 ? feedback : ['Great password!'],
+  };
 }
