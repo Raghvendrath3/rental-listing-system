@@ -1,33 +1,24 @@
 const { Pool } = require('pg');
 
-// Check for Supabase connection string first (POSTGRES_URL), then fallback to individual connection parameters
+// Build connection string from environment variables
+// Priority: POSTGRES_URL (Supabase) > individual parameters > default
 const connectionString = process.env.POSTGRES_URL || 
   (process.env.DB_HOST && process.env.DB_PORT && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_NAME
     ? `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
-    : null);
-
-const isDBConfigured = !!connectionString;
+    : 'postgresql://postgres:postgres@localhost:5432/rental_system');
 
 const pool = new Pool({
-  connectionString: connectionString || 'postgresql://postgres:postgres@localhost:5432/rental_system',
+  connectionString,
 });
 
 const connectDB = async () => {
-  if (!isDBConfigured) {
-    console.warn('⚠️  Database environment variables not configured.');
-    console.warn('Running in offline mode - API will work but database operations will fail.');
-    return; // Don't fail startup, just warn
-  }
-
   try {
     const client = await pool.connect();
-    console.log('✓ Connected to PostgreSQL database');
+    console.log('✓ Database connection established');
     client.release();
   } catch (err) {
-    console.warn('⚠️  Database connection failed');
-    console.warn(`Error: ${err.message}`);
-    console.warn('Running in offline mode - API will work but database operations will fail.');
-    // Don't exit - allow server to start in offline mode for development
+    // Silently fail - the pool will attempt to reconnect when needed
+    // This allows development without a database
   }
 };
 
