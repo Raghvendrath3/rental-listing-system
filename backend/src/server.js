@@ -10,13 +10,13 @@ const startServer = async () => {
     await connectDB(); 
 
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`✓ Server running on port ${PORT}`);
+      console.log(`API available at http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1); // Exit with failure if DB connection fails
+    console.error('Failed to start server:', error.message);
+    process.exit(1);
   }
 };
 
-// 💡 ADD THIS LINE TO ACTUALLY RUN THE SERVER
 startServer(); 
