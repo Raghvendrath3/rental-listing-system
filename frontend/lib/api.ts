@@ -222,13 +222,76 @@ async function getAllListings(filters: ListingsParams = {}): Promise<ListingsRes
   };
 }
 
-async function getAllUsers(): Promise<any> {
-  return apiFetch('/users/admin');
+async function getAllUsers(page: number = 1, limit: number = 20, role?: string, search?: string): Promise<any> {
+  const query = new URLSearchParams();
+  query.set('page', String(page));
+  query.set('limit', String(limit));
+  if (role) query.set('role', role);
+  if (search) query.set('search', search);
+  
+  return apiFetch(`/users/admin?${query}`);
+}
+
+async function updateUserRole(userId: number, newRole: string): Promise<any> {
+  return apiFetch(`/users/${userId}/role`, {
+    method: 'PATCH',
+    body: JSON.stringify({ role: newRole }),
+  });
+}
+
+async function deleteUserAdmin(userId: number): Promise<any> {
+  return apiFetch(`/users/${userId}`, {
+    method: 'DELETE',
+  });
 }
 
 async function getAdminStats(): Promise<any> {
   return apiFetch('/admin/stats');
 }
 
-export { apiFetch, listings, getOwnerListings, createListing, updateListing, deleteListing, publishListing, archiveListing, getAllListings, getAllUsers, getAdminStats };
+// User Profile functions
+async function getUserProfile(): Promise<any> {
+  return apiFetch('/users/profile');
+}
+
+async function updateUserProfile(updateData: any): Promise<any> {
+  return apiFetch('/users/profile', {
+    method: 'PATCH',
+    body: JSON.stringify(updateData),
+  });
+}
+
+// Owner Request functions
+async function submitOwnerRequest(): Promise<any> {
+  return apiFetch('/owner-requests', {
+    method: 'POST',
+  });
+}
+
+async function checkPendingOwnerRequest(): Promise<any> {
+  return apiFetch('/owner-requests/check');
+}
+
+async function getPendingOwnerRequests(page: number = 1, limit: number = 20): Promise<any> {
+  const query = new URLSearchParams();
+  query.set('page', String(page));
+  query.set('limit', String(limit));
+  
+  return apiFetch(`/owner-requests?${query}`);
+}
+
+async function approveOwnerRequest(id: number): Promise<any> {
+  return apiFetch(`/owner-requests/${id}/approve`, {
+    method: 'PATCH',
+  });
+}
+
+async function rejectOwnerRequest(id: number, reason?: string): Promise<any> {
+  return apiFetch(`/owner-requests/${id}/reject`, {
+    method: 'PATCH',
+    body: JSON.stringify({ reason: reason || null }),
+  });
+}
+
+export { apiFetch, listings, getOwnerListings, createListing, updateListing, deleteListing, publishListing, archiveListing, getAllListings, getAllUsers, getAdminStats, getUserProfile, updateUserProfile, updateUserRole, deleteUserAdmin, submitOwnerRequest, checkPendingOwnerRequest, getPendingOwnerRequests, approveOwnerRequest, rejectOwnerRequest };
 export type { Listing, ListingsResponse, ListingsParams };

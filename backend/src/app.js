@@ -1,6 +1,7 @@
 const express = require("express");
 const healthRoutes = require("./routes/healths.routes");
 const testRoutes = require('./routes/tests.routes');
+const adminRoutes = require('./routes/admin.routes');
 
 const cors = require('cors');
 
@@ -18,6 +19,10 @@ app.use('/test', testRoutes);
 app.use('/listings', require('./routes/listings.routes'));
 
 app.use('/users', require('./routes/users.routes'));
+
+app.use('/owner-requests', require('./routes/ownerRequests.routes'));
+
+app.use('/admin', adminRoutes);
 
 // fallback error handler (basic for now)
 app.use((err, req, res, next) => {

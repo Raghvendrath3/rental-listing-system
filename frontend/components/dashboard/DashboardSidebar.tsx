@@ -24,6 +24,10 @@ export default function DashboardSidebar() {
     { label: 'Create Listing', href: '/dashboard/myListings/new', icon: '➕', requiredRole: 'owner' },
   ];
 
+  const becomeOwnerNavItems: NavItem[] = [
+    { label: 'Become an Owner', href: '/dashboard/become-owner', icon: '⭐', requiredRole: 'user' },
+  ];
+
   const adminNavItems: NavItem[] = [
     { label: 'Admin Dashboard', href: '/dashboard/admin', icon: '⚙️', requiredRole: 'admin' },
     { label: 'User Management', href: '/dashboard/admin/users', icon: '👥', requiredRole: 'admin' },
@@ -39,6 +43,8 @@ export default function DashboardSidebar() {
     allNavItems = [...baseNavItems, ...ownerNavItems, ...profileNavItems];
   } else if (user?.role === 'admin') {
     allNavItems = [...baseNavItems, ...adminNavItems, ...profileNavItems];
+  } else if (user?.role === 'user') {
+    allNavItems = [...baseNavItems, ...becomeOwnerNavItems, ...profileNavItems];
   }
 
   const isActive = (href: string) => pathname === href;

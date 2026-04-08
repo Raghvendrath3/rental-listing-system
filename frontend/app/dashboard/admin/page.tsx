@@ -98,6 +98,15 @@ export default function AdminDashboard() {
       {/* Quick Links */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Link
+          href="/dashboard/admin/owner-requests"
+          className="p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow"
+        >
+          <div className="text-3xl mb-3">📋</div>
+          <h3 className="font-semibold text-gray-900">Owner Requests</h3>
+          <p className="text-sm text-gray-600 mt-2">Review and approve owner requests</p>
+        </Link>
+
+        <Link
           href="/dashboard/admin/users"
           className="p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow"
         >
@@ -113,15 +122,6 @@ export default function AdminDashboard() {
           <div className="text-3xl mb-3">📊</div>
           <h3 className="font-semibold text-gray-900">Reports</h3>
           <p className="text-sm text-gray-600 mt-2">View system reports and analytics</p>
-        </Link>
-
-        <Link
-          href="#"
-          className="p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow"
-        >
-          <div className="text-3xl mb-3">⚙️</div>
-          <h3 className="font-semibold text-gray-900">Settings</h3>
-          <p className="text-sm text-gray-600 mt-2">Configure system settings</p>
         </Link>
       </div>
 
