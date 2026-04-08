@@ -1,36 +1,168 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RentalHub Frontend
 
-## Getting Started
+Professional real estate rental listing platform built with Next.js 16, React 19, and Tailwind CSS. This is a modern, full-featured web application for browsing rental listings and managing properties.
 
-First, run the development server:
+## Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Development](#development)
+- [Building for Production](#building-for-production)
+- [Deployment](#deployment)
+- [Documentation](#documentation)
+
+## Features
+
+### User Features
+- Browse published rental listings with advanced filtering
+- Filter by city, property type, and price range
+- Responsive design optimized for mobile, tablet, and desktop
+- Secure JWT-based authentication
+
+### Owner Features
+- Create and manage property listings
+- Publish listings to make visible to users
+- Archive listings to hide from public view
+- Update listing details and pricing
+
+### Admin Features
+- View all listings (including drafts and archived)
+- Manage all users and their roles
+- View system statistics and metrics
+
+### Security & Reliability
+- JWT token-based authentication
+- Content Security Policy (CSP) headers
+- Role-based access control (RBAC)
+- Input validation with Zod schemas
+- Comprehensive error handling
+
+## Tech Stack
+
+- **Next.js 16**: React framework with App Router
+- **React 19**: UI library with latest features
+- **TypeScript**: Type-safe development
+- **Tailwind CSS v4**: Utility-first CSS framework
+- **Zod**: Schema validation
+- **SWR**: Data fetching and caching
+
+## Quick Start
+
+### Prerequisites
+- Node.js >= 18.0.0
+- npm >= 9.0.0 or pnpm >= 8.0.0
+
+### Setup
 
 ```bash
+# Clone repository
+git clone https://github.com/Raghvendrath3/rental-listing-system.git
+cd rental-listing-system/frontend
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env.local
+# Edit .env.local with your API URL
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+frontend/
+├── app/                      # Next.js App Router
+│   ├── auth/                 # Auth pages (login, register)
+│   ├── dashboard/            # Protected dashboard routes
+│   ├── layout.tsx            # Root layout with providers
+│   └── page.tsx              # Home/landing page
+├── components/               # Reusable React components
+│   ├── common/               # Shared components
+│   ├── dashboard/            # Dashboard components
+│   ├── forms/                # Form components
+│   ├── home/                 # Landing page sections
+│   ├── listings/             # Listing components
+│   ├── Toast/                # Notifications
+│   └── Navbar.tsx            # Navigation bar
+├── contexts/                 # React Context providers
+├── hooks/                    # Custom React hooks
+├── lib/                      # Utilities and helpers
+├── config/                   # Configuration
+├── types/                    # TypeScript type definitions
+├── public/                   # Static assets
+├── middleware.ts             # Security headers
+├── next.config.ts            # Next.js config
+└── package.json              # Dependencies
+```
 
-## Learn More
+## Development
 
-To learn more about Next.js, take a look at the following resources:
+### Available Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run dev      # Start development server
+npm run build    # Build for production
+npm run start    # Start production server
+npm run lint     # Run linter
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Coding Standards
 
-## Deploy on Vercel
+- Use TypeScript (strict mode)
+- Functional components with hooks
+- Tailwind CSS for styling
+- Zod for validation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Building for Production
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm run start
+```
+
+Verify:
+- No console errors
+- Pages load quickly
+- All features work
+
+## Deployment
+
+Deploy to Vercel:
+
+```bash
+npm install -g vercel
+vercel deploy --prod
+```
+
+See [DEPLOYMENT.md](../DEPLOYMENT.md) for detailed instructions.
+
+## Documentation
+
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Development guidelines
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Application architecture
+- **[SECURITY.md](./SECURITY.md)** - Security implementation
+- **[../DEPLOYMENT.md](../DEPLOYMENT.md)** - Production deployment
+- **[../API_TESTING.md](../API_TESTING.md)** - API testing guide
+
+## Environment Variables
+
+Required variables in `.env.local`:
+
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+See `.env.example` for all available variables.
+
+## Support
+
+- GitHub Issues: Report bugs
+- Email: support@rentalhub.com
+- Documentation: See docs folder

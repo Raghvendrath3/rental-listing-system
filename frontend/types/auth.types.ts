@@ -33,11 +33,31 @@ export interface PasswordStrength {
   color: string;
 }
 
- export interface LoginResponse {
+export interface LoginResponse {
+  status: string;
   token: string;
   user: {
     id: string;
     email: string;
-    name: string;
+    role: 'user' | 'owner' | 'admin';
   };
-};
+}
+
+export interface DecodedToken {
+  jwt: string;
+  userId: string;
+  role: 'user' | 'owner' | 'admin';
+  isValid: boolean;
+}
+
+export interface AuthState {
+  isAuthenticated: boolean;
+  user: {
+    id: string;
+    email: string;
+    role: 'user' | 'owner' | 'admin';
+  } | null;
+  token: string | null;
+  loading: boolean;
+  error: string | null;
+}
