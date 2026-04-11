@@ -1,536 +1,274 @@
-# RentalHub Deployment Guide
+# Deployment Guide
 
-## Table of Contents
-1. [Prerequisites](#prerequisites)
-2. [Local Development Setup](#local-development-setup)
-3. [Testing](#testing)
-4. [Production Build](#production-build)
-5. [Deploying to Vercel](#deploying-to-vercel)
-6. [Environment Variables](#environment-variables)
-7. [Post-Deployment Verification](#post-deployment-verification)
-8. [Monitoring & Alerting](#monitoring--alerting)
-9. [Rollback Procedures](#rollback-procedures)
-10. [Troubleshooting](#troubleshooting)
+This guide covers deploying RentalHub to production.
 
 ## Prerequisites
 
-### Required Software
-- Node.js >= 18.0.0 (check with `node --version`)
-- npm >= 9.0.0 or pnpm >= 8.0.0
-- Git (for version control)
-- A Vercel account (https://vercel.com)
+- Node.js v18+
+- Git and GitHub account
+- Vercel account (for frontend)
+- Backend hosting (Render, Railway, Heroku, or similar)
+- Production PostgreSQL database
+- Environment variables configured
 
-### Verify Prerequisites
+## Frontend Deployment (Vercel)
+
+### Option 1: Automatic Deployment via GitHub
+
+1. Push code to GitHub
+2. Go to https://vercel.com/new
+3. Select your GitHub repository
+4. Set root directory to `frontend`
+5. Add environment variables:
+   - `NEXT_PUBLIC_API_URL` = your backend URL
+6. Click "Deploy"
+
+Vercel will automatically deploy on every push to main branch.
+
+### Option 2: Manual CLI Deployment
+
 ```bash
-node --version    # Should be >= 18.0.0
-npm --version     # Should be >= 9.0.0
-git --version     # Should be available
-
-# Or if using pnpm
-pnpm --version    # Should be >= 8.0.0
-```
-
-### Backend Requirements
-- Backend API running and accessible
-- Database configured and migrated
-- All required environment variables set on backend
-
-## Local Development Setup
-
-### 1. Clone Repository
-```bash
-git clone https://github.com/Raghvendrath3/rental-listing-system.git
-cd rental-listing-system/frontend
-```
-
-### 2. Install Dependencies
-```bash
-# Using npm
-npm install
-
-# Or using pnpm
-pnpm install
-```
-
-### 3. Configure Environment Variables
-```bash
-# Copy the example file
-cp .env.example .env.local
-
-# Edit .env.local with your values
-# Minimum required:
-# NEXT_PUBLIC_API_URL=http://localhost:5000
-```
-
-### 4. Start Development Server
-```bash
-npm run dev
-# or
-pnpm dev
-```
-
-The application will be available at `http://localhost:3000`
-
-### 5. Verify Local Setup
-- Navigate to http://localhost:3000
-- Home page loads without errors
-- Can navigate to login/register pages
-- Navbar renders correctly
-
-## Testing
-
-### Run Lint Checks
-```bash
-npm run lint
-# or
-pnpm lint
-```
-
-### Build Locally
-```bash
-npm run build
-# or
-pnpm build
-```
-
-### Test Production Build Locally
-```bash
-npm run build
-npm run start
-
-# Application will run on http://localhost:3000
-```
-
-### Run API Integration Tests
-Follow the procedures in [API_TESTING.md](./API_TESTING.md)
-
-### Run Manual Testing
-1. Complete all tests in [API_TESTING.md](./API_TESTING.md)
-2. Test on multiple browsers (Chrome, Firefox, Safari, Edge)
-3. Test on mobile devices (iOS and Android)
-4. Verify all user roles work: user, owner, admin
-5. Check console for errors: no errors should appear
-
-## Production Build
-
-### Build Optimization
-```bash
-# Build the application
-npm run build
-
-# This will:
-# - Compile TypeScript
-# - Optimize images
-# - Minify CSS and JavaScript
-# - Generate static pages where possible
-# - Create production-ready bundle
-```
-
-### Build Output
-```
-.next/
-├── server/       # Server-side code
-├── static/       # Static assets
-└── public/       # Public files
-```
-
-### Verify Build
-```bash
-# Check for build errors
-npm run build
-
-# Should complete with no errors
-# Output should show "Successfully compiled"
-```
-
-## Deploying to Vercel
-
-### Method 1: Using Vercel CLI (Recommended)
-
-#### Install Vercel CLI
-```bash
+# Install Vercel CLI
 npm install -g vercel
-```
 
-#### Login to Vercel
-```bash
+# Login to Vercel
 vercel login
-# Opens browser to authenticate
-```
 
-#### Deploy
-```bash
-cd /path/to/rental-listing-system/frontend
-
+# Deploy from frontend directory
+cd frontend
 vercel deploy --prod
 ```
 
-#### Configure Project
-- Select "Yes" to link to existing Vercel project (if already created)
-- Or create new project when prompted
-- Set environment variables as needed
+### Environment Variables (Vercel Dashboard)
 
-### Method 2: GitHub Integration
+1. Go to Project Settings > Environment Variables
+2. Add for all environments (Production, Preview, Development):
+   ```
+   NEXT_PUBLIC_API_URL = https://api.rentalhub.com
+   ```
+3. Redeploy after adding variables
 
-#### Connect GitHub Repository
-1. Go to https://vercel.com
-2. Click "New Project"
-3. Select GitHub repository: `Raghvendrath3/rental-listing-system`
-4. Select "frontend" folder as root directory
-5. Configure environment variables (see Environment Variables section)
-6. Click "Deploy"
+## Backend Deployment
 
-#### Automatic Deployments
-Once connected:
-- Every push to `main` deploys to production
-- Pull requests get preview deployments
-- Deployments complete in 2-5 minutes
+### Option 1: Deploy to Render
 
-### Method 3: Manual GitHub Deployment
+1. Create account at https://render.com
+2. Connect GitHub repository
+3. Create new Web Service:
+   - Select your GitHub repo
+   - Set root directory to `backend`
+   - Environment: Node
+   - Build command: `npm install`
+   - Start command: `npm start`
+4. Add environment variables:
+   ```
+   DB_HOST = supabase_host
+   DB_PORT = 5432
+   DB_USER = postgres
+   DB_PASSWORD = password
+   DB_NAME = postgres
+   JWT_SECRET = your_secret
+   PORT = 3000
+   ```
+5. Deploy
 
-1. Push to GitHub
-2. Go to Vercel dashboard
-3. Click on project
-4. Manual deployment section
-5. Click "Deploy"
+### Option 2: Deploy to Railway
 
-## Environment Variables
+1. Create account at https://railway.app
+2. Connect GitHub
+3. Create new project
+4. Add backend directory
+5. Configure environment variables
+6. Deploy
 
-### Setting Environment Variables in Vercel
+### Option 3: Deploy to Heroku
 
-#### Via Vercel Dashboard
-1. Go to Project Settings
-2. Click "Environment Variables"
-3. Add each variable:
-   - Key: `NEXT_PUBLIC_API_URL`
-   - Value: `https://api.rentalhub.com`
-   - Environments: Production, Preview, Development
+```bash
+# Install Heroku CLI
+npm install -g heroku
 
-#### Minimum Required Variables
+# Login
+heroku login
+
+# Create app
+heroku create your-app-name
+
+# Add PostgreSQL
+heroku addons:create heroku-postgresql:hobby-dev
+
+# Set environment variables
+heroku config:set JWT_SECRET=your_secret
+
+# Deploy
+git push heroku main
 ```
-NEXT_PUBLIC_API_URL=https://api.rentalhub.com
-```
 
-#### Optional Variables
-```
-NEXT_PUBLIC_SITE_URL=https://rentalhub.com
-NEXT_PUBLIC_DEBUG=false
-NEXT_PUBLIC_ENFORCE_HTTPS=true
-NEXT_PUBLIC_GA_ID=UA-XXXXXXXXX-X
-NEXT_PUBLIC_SENTRY_DSN=https://examplePublicKey@o0.ingest.sentry.io/0
-```
+## Database Setup
 
-### Environment Variable Safety
-- Never commit `.env` files
-- Never log environment variables
-- Use `.env.example` as template
-- Vercel dashboard is encrypted
-- Access logs who accessed/changed vars
+### Supabase PostgreSQL
+
+1. Create Supabase project
+2. Note connection string: `postgresql://postgres:password@host:5432/postgres`
+3. Run migrations:
+   ```bash
+   # Using psql
+   psql postgresql://postgres:password@host:5432/postgres < database/schema.sql
+   
+   # Or seed initial data
+   node backend/seed.js
+   ```
 
 ## Post-Deployment Verification
 
-### 1. Check Deployment Status
-```
-Visit: https://vercel.com/dashboard
-Look for: Deployment status "Ready"
-```
+### 1. Frontend Checks
+- [ ] Home page loads at production URL
+- [ ] No console errors (F12)
+- [ ] Can navigate to login page
+- [ ] Responsive on mobile
+- [ ] Lighthouse score > 90
 
-### 2. Verify Home Page
-- Navigate to https://rentalhub.com
-- Page loads without errors
-- All sections visible: hero, features, testimonials, FAQ
-- No 404 or 500 errors
+### 2. Backend Checks
+- [ ] API responds at `/health`
+- [ ] User registration works: POST `/users`
+- [ ] User login works: POST `/users/login`
+- [ ] Listings endpoint works: GET `/listings`
 
-### 3. Verify Authentication
-- Try login: /auth/login
-- Try register: /auth/register
-- Verify redirects work
-- Check token storage in DevTools
+### 3. Integration Checks
+- [ ] Frontend can communicate with backend
+- [ ] Login redirects correctly
+- [ ] Dashboard loads with real data
+- [ ] Create listing works end-to-end
+- [ ] Admin dashboard accessible
 
-### 4. Verify API Connectivity
-- Open DevTools Network tab
-- Log in
-- Verify `/users/login` request succeeds
-- Response includes token
-- Status code is 200
+### 4. Database Checks
+- [ ] Users table populated
+- [ ] Listings visible
+- [ ] Search/filtering works
+- [ ] No connection errors in logs
 
-### 5. Run Lighthouse
-- Open Chrome DevTools
-- Go to Lighthouse tab
-- Run audit for: Performance, Accessibility, Best Practices, SEO
-- Target scores:
-  - Performance: >= 90
-  - Accessibility: >= 90
-  - Best Practices: >= 90
-  - SEO: >= 90
+## Monitoring
 
-### 6. Check Security Headers
-- Use: https://securityheaders.com
-- Paste URL: https://rentalhub.com
-- Look for: A+ rating (all headers present)
+### Frontend (Vercel Analytics)
+1. Dashboard > Analytics
+2. Monitor Core Web Vitals
+3. Check error rates
+4. Monitor deployment frequency
 
-### 7. Smoke Testing
-Run tests from [API_TESTING.md](./API_TESTING.md) on production:
-- [ ] User login works
-- [ ] User dashboard displays listings
-- [ ] Owner can create listing
-- [ ] Admin dashboard loads
-- [ ] Pagination works
-- [ ] Filtering works
-- [ ] Error messages display
-
-### 8. Monitor Errors
-- Check Sentry (if configured)
-- Check Vercel logs: Project > Deployments > Logs
-- No critical errors should appear
-- Allow 5-10 minutes for initial traffic
-
-## Monitoring & Alerting
-
-### Vercel Monitoring
-1. Go to Project Settings
-2. Click "Monitoring"
-3. Enable monitoring for:
-   - Edge Middleware timing
-   - Serverless Function execution
-   - First Contentful Paint (FCP)
-   - Largest Contentful Paint (LCP)
-
-### Log Monitoring
+### Backend Logs
 ```bash
-# View logs in real-time
-vercel logs --prod
+# Render
+# View in dashboard > Logs
 
-# Tail logs (watch new logs)
-vercel logs --prod -f
+# Railway
+# View in dashboard > Logs
+
+# Heroku
+heroku logs --tail
 ```
 
-### Performance Metrics
-- Monitor via Vercel Analytics:
-  - Project > Analytics
-  - View Core Web Vitals
-  - Check response times
-  - Monitor error rates
+### Error Tracking (Optional)
+- Sentry for frontend errors
+- Backend error logging
+- Database query monitoring
 
-### Error Tracking
-1. Configure Sentry (optional but recommended):
-   - Create account at https://sentry.io
-   - Create project for Next.js
-   - Get DSN
-   - Set `NEXT_PUBLIC_SENTRY_DSN` in Vercel
+## SSL Certificate
 
-2. Configure Datadog (optional):
-   - Create Datadog account
-   - Set up monitoring
-   - Alert on error spikes
+Vercel and cloud providers (Render, Railway, Heroku) handle SSL automatically.
 
-### Uptime Monitoring
-Use third-party uptime monitors:
-- UptimeRobot.com
-- Pingdom
-- StatusCake
+Verify:
+1. Visit https://yourdomain.com
+2. Check browser shows green lock icon
+3. Certificate automatically renews
 
-Setup alerts for:
-- Website down (non-200 status)
-- Response time > 5 seconds
-- SSL certificate issues
+## Scaling
 
-## Rollback Procedures
+### If experiencing high traffic:
 
-### Rollback via Vercel Dashboard
-1. Go to https://vercel.com/dashboard
-2. Select project
-3. Go to "Deployments" tab
-4. Find previous successful deployment
-5. Click three dots (...)
-6. Select "Promote to Production"
-7. Confirm
+**Frontend:**
+- Vercel automatically scales
+- Enable Edge Functions for optimization
+- Monitor bandwidth usage
 
-Takes ~2 minutes to go live
+**Backend:**
+- Increase database connections in pool
+- Use caching for listings
+- Consider read replicas for database
 
-### Rollback via CLI
-```bash
-vercel list --prod
-# Find deployment ID to revert to
+**Database:**
+- Monitor query performance
+- Create indexes on common filters
+- Archive old data if needed
 
-vercel promote <DEPLOYMENT_ID> --prod
-# Promotes deployment to production
-```
+## Rollback
 
-### Rollback via Git
-```bash
-# Revert last commit
-git revert HEAD
+### If deployment fails:
 
-# Push to main
-git push origin main
+**Frontend (Vercel):**
+1. Deployments tab
+2. Find previous working version
+3. Click "Promote to Production"
 
-# Vercel will automatically deploy the reverted code
-```
-
-### When to Rollback
-- Critical bugs discovered in production
-- Performance degradation
-- Security vulnerability
-- Data corruption
-- API incompatibility
-
-### Testing Rollback
-1. Do NOT practice in production
-2. Test in staging environment
-3. Verify rollback process works
-4. Document any issues
+**Backend:**
+- Render: Redeploy previous version
+- Heroku: `heroku releases:rollback`
 
 ## Troubleshooting
 
-### Build Failures
+### 404 Frontend
+- Verify Vercel project settings
+- Check root directory is `frontend`
+- Rebuild and redeploy
 
-#### Error: Cannot find module
-```
-Solution:
-- npm install
-- pnpm install
-- Delete .next folder
-- Rebuild
-```
-
-#### Error: Environment variable missing
-```
-Solution:
-- Check .env.local has all required variables
-- Check Vercel dashboard has variables set
-- Verify variable names match code
-```
-
-#### Error: Port 3000 already in use
-```bash
-# Kill process using port 3000
-lsof -i :3000
-kill -9 <PID>
-
-# Or use different port
-PORT=3001 npm run dev
-```
-
-### Runtime Errors
-
-#### Token not found
-```
-Solution:
-- Check localStorage in browser DevTools
-- Verify login endpoint returns token
-- Check token format: JWT|userId|role
-- Check middleware not blocking auth routes
-```
-
-#### API 404 errors
-```
-Solution:
-- Verify NEXT_PUBLIC_API_URL is correct
+### API Connection Failed
+- Verify `NEXT_PUBLIC_API_URL` is set correctly
 - Check backend is running
-- Verify endpoint exists on backend
-- Check network tab for actual request URL
-```
+- Verify CORS configuration in backend
+- Check network connectivity
 
-#### CORS errors
-```
-Solution:
-- Check backend CORS configuration
-- Verify origin matches CORS whitelist
-- Check preflight requests (OPTIONS)
-- Verify Content-Type header correct
-```
+### Database Connection Error
+- Verify connection string is correct
+- Check database is running
+- Verify firewall/IP whitelist
+- Test with connection tool first
 
-### Performance Issues
+### Slow Performance
+- Check Lighthouse score
+- Monitor database queries
+- Enable image optimization
+- Consider caching strategy
 
-#### Slow page loads
-```
-Solution:
-- Run Lighthouse
-- Check Network tab
-- Identify slow requests
-- Check image sizes
-- Enable caching headers
-```
+## Security Checklist
 
-#### High memory usage
-```
-Solution:
-- Check for memory leaks in components
-- Use React DevTools Profiler
-- Check for infinite loops
-- Monitor Network requests
-```
+- [ ] HTTPS enabled on all URLs
+- [ ] Environment variables not in code
+- [ ] JWT secret is strong (32+ chars)
+- [ ] Database password is strong
+- [ ] CORS configured to allow only frontend
+- [ ] Rate limiting enabled
+- [ ] SQL injection prevention (parameterized queries)
+- [ ] Sensitive data not logged
+- [ ] Backup strategy in place
+- [ ] Security headers configured
 
-### Deployment Failures
+## Maintenance
 
-#### Vercel deployment stuck
-```
-Solution:
-- Check Vercel logs
-- Verify build command succeeds locally
-- Check environment variables
-- Try canceling and redeploying
-```
+### Regular Tasks
+- Monitor error logs weekly
+- Review performance metrics monthly
+- Update dependencies quarterly
+- Backup database daily (automatic on Supabase)
+- Review access logs for anomalies
 
-#### GitHub integration not working
-```
-Solution:
-- Verify GitHub app installed
-- Check repository permissions
-- Reconnect GitHub account
-- Check branch name (main vs master)
-```
+### Backup Strategy
+- Supabase: automatic daily backups
+- Keep 7-day backup history
+- Test restore procedure quarterly
 
-## Best Practices
+## Support
 
-### Pre-Deployment Checklist
-- [ ] All tests pass locally
-- [ ] No console errors or warnings
-- [ ] Build succeeds: `npm run build`
-- [ ] Environment variables set
-- [ ] API backend is running
-- [ ] Database is backed up
-- [ ] Security audit complete
-- [ ] Performance audit > 90
-- [ ] Code review approved
-- [ ] Deployment window scheduled
-
-### Post-Deployment Checklist
-- [ ] All smoke tests pass
-- [ ] No errors in Sentry/logs
-- [ ] Performance metrics acceptable
-- [ ] Security headers present
-- [ ] SSL certificate valid
-- [ ] Email notifications working
-- [ ] Backup created
-- [ ] Team notified
-
-### Continuous Deployment
-1. Merge to main branch
-2. Vercel automatically builds and tests
-3. Deploy to preview first
-4. Run tests on preview
-5. Promote to production if all pass
-6. Monitor for errors
-
-## Support & Escalation
-
-### Get Help
-- Vercel Support: https://vercel.com/help
-- Documentation: https://nextjs.org
-- GitHub Issues: Report bugs and features
-
-### Critical Issues
-If production is down:
-1. Check Vercel status page
-2. Review recent deployments
-3. Check error logs
-4. Rollback if necessary
-5. Notify team and users
-
-### Feature Requests
-- Create GitHub issue
-- Tag with "enhancement"
-- Include detailed description
-- Reference related issues
+For deployment issues:
+1. Check service status pages (Vercel, Render, etc.)
+2. Review logs in dashboard
+3. Verify environment variables
+4. Test API endpoints with Postman/curl
+5. Check GitHub issues and documentation
