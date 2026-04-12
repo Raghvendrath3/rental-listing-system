@@ -28,10 +28,10 @@ export default function DataTable<T extends { id?: string | number }>({
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="p-6 space-y-4">
+      <div className="bg-white rounded border border-gray-300 overflow-hidden">
+        <div className="p-6 space-y-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-12 bg-gray-200 rounded animate-pulse" />
+            <div key={i} className="h-10 bg-gray-200 rounded animate-pulse" />
           ))}
         </div>
       </div>
@@ -40,21 +40,21 @@ export default function DataTable<T extends { id?: string | number }>({
 
   if (isEmpty) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden p-12 text-center">
-        <p className="text-gray-500 text-sm">No data available</p>
+      <div className="bg-white rounded border border-gray-300 overflow-hidden p-12 text-center">
+        <p className="text-ink-500 text-sm">No data available</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto shadow-sm">
+    <div className="bg-white rounded border border-gray-300 overflow-x-auto">
       <table className="w-full">
-        <thead className="bg-gray-50 border-b border-gray-200">
+        <thead className="bg-gray-100 border-b border-gray-300">
           <tr>
             {columns.map((column, idx) => (
               <th
                 key={idx}
-                className={`px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide ${
+                className={`px-6 py-3 text-left text-xs font-semibold text-ink-700 uppercase tracking-wide ${
                   column.width || 'w-auto'
                 }`}
               >
@@ -62,13 +62,13 @@ export default function DataTable<T extends { id?: string | number }>({
               </th>
             ))}
             {actions && actions.length > 0 && (
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">
+              <th className="px-6 py-3 text-left text-xs font-semibold text-ink-700 uppercase tracking-wide">
                 Actions
               </th>
             )}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200">
+        <tbody className="divide-y divide-gray-300">
           {data.map((row, rowIdx) => (
             <tr
               key={row.id || rowIdx}
@@ -76,7 +76,7 @@ export default function DataTable<T extends { id?: string | number }>({
               className={`${onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''} transition-colors`}
             >
               {columns.map((column, colIdx) => (
-                <td key={colIdx} className="px-6 py-4 text-sm text-gray-700">
+                <td key={colIdx} className="px-6 py-4 text-sm text-ink-700">
                   {column.render
                     ? column.render(row[column.accessor], row)
                     : String(row[column.accessor] || '-')}
@@ -92,12 +92,12 @@ export default function DataTable<T extends { id?: string | number }>({
                           e.stopPropagation();
                           action.onClick(row);
                         }}
-                        className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+                        className={`px-3 py-1 text-xs font-medium rounded border transition-colors ${
                           action.variant === 'danger'
-                            ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                            ? 'bg-white text-ink-600 border-ink-300 hover:bg-gray-50'
                             : action.variant === 'secondary'
-                            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                            ? 'bg-white text-ink-600 border-ink-300 hover:bg-gray-50'
+                            : 'bg-ink-900 text-white border-ink-900 hover:bg-ink-800'
                         }`}
                       >
                         {action.label}

@@ -18,63 +18,64 @@ export default function ListingCard({
   onDelete,
 }: ListingCardProps) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="group bg-white border border-gray-300 rounded overflow-hidden transition-all duration-200 hover:border-gray-500 hover:shadow-md">
       {/* Image Placeholder */}
-      <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-blue-400">
-        <span className="text-4xl">🏠</span>
+      <div className="w-full aspect-video bg-gray-100 flex items-center justify-center border-b border-gray-300 group-hover:bg-gray-150 transition-colors">
+        <span className="text-5xl opacity-40">🏠</span>
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-6 space-y-4">
         {/* Header with status */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 line-clamp-2">{listing.title}</h3>
-            <p className="text-sm text-gray-600 mt-1">{listing.city}</p>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-medium text-ink-900 line-clamp-2">{listing.title}</h3>
+            <p className="text-sm text-ink-500 mt-2">{listing.city}</p>
           </div>
           {showStatus && <ListingStatusBadge status={listing.status} size="sm" />}
         </div>
 
         {/* Details Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
+        <div className="grid grid-cols-2 gap-4 py-4 border-y border-gray-300">
           <div>
-            <p className="text-gray-600">Area</p>
-            <p className="font-semibold text-gray-900">{listing.area} m²</p>
+            <p className="text-xs uppercase text-ink-500 font-medium tracking-wide">Area</p>
+            <p className="text-sm font-medium text-ink-900 mt-1">{listing.area} m²</p>
           </div>
           <div>
-            <p className="text-gray-600">Type</p>
-            <p className="font-semibold text-gray-900 capitalize">{listing.type}</p>
+            <p className="text-xs uppercase text-ink-500 font-medium tracking-wide">Type</p>
+            <p className="text-sm font-medium text-ink-900 mt-1 capitalize">{listing.type}</p>
           </div>
         </div>
 
         {/* Price */}
-        <div className="mb-4 pb-4 border-t border-gray-200">
-          <p className="text-2xl font-bold text-gray-900">
+        <div>
+          <p className="text-xs uppercase text-ink-500 font-medium tracking-wide">Price</p>
+          <p className="text-2xl font-medium text-ink-900 mt-1">
             ${listing.price.toLocaleString()}
-            <span className="text-sm text-gray-600 font-normal">/month</span>
+            <span className="text-sm text-ink-500 font-normal">/mo</span>
           </p>
         </div>
 
         {/* Availability Badge */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
           <span
-            className={`text-sm font-medium px-2 py-1 rounded ${
+            className={`inline-block text-xs font-medium px-3 py-1.5 rounded border ${
               listing.is_available
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
+                ? 'bg-ink-900 text-white border-ink-900'
+                : 'bg-white text-ink-600 border-ink-300'
             }`}
           >
-            {listing.is_available ? 'Available' : 'Not Available'}
+            {listing.is_available ? 'Available' : 'Unavailable'}
           </span>
         </div>
 
         {/* Actions */}
         {showOwnerActions && (onEdit || onDelete) ? (
-          <div className="flex gap-2">
+          <div className="flex gap-3 pt-2">
             {onEdit && (
               <button
                 onClick={() => onEdit(listing.id)}
-                className="flex-1 px-3 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 text-sm font-medium transition-colors"
+                className="flex-1 px-4 py-2 bg-ink-900 text-white text-sm font-medium rounded border border-ink-900 hover:bg-ink-800 transition-colors"
               >
                 Edit
               </button>
@@ -82,7 +83,7 @@ export default function ListingCard({
             {onDelete && (
               <button
                 onClick={() => onDelete(listing.id)}
-                className="flex-1 px-3 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 text-sm font-medium transition-colors"
+                className="flex-1 px-4 py-2 bg-white text-ink-900 text-sm font-medium rounded border border-ink-300 hover:bg-gray-50 transition-colors"
               >
                 Delete
               </button>
@@ -91,7 +92,7 @@ export default function ListingCard({
         ) : (
           <Link
             href={`/listings/${listing.id}`}
-            className="block w-full text-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium transition-colors"
+            className="block w-full text-center px-4 py-2 bg-ink-900 text-white text-sm font-medium rounded border border-ink-900 hover:bg-ink-800 transition-colors mt-2"
           >
             View Details
           </Link>

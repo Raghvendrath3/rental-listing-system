@@ -48,17 +48,17 @@ export default function AdminDashboard() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600 mt-2">System overview and management tools</p>
+        <h1 className="text-4xl font-medium text-ink-900">Admin Dashboard</h1>
+        <p className="text-ink-500 mt-2">System overview and management tools</p>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700 text-sm">{error}</p>
+        <div className="mb-6 p-4 bg-white border border-ink-300 rounded">
+          <p className="text-ink-600 text-sm">{error}</p>
           <button
             onClick={() => fetchData()}
-            className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium"
+            className="mt-2 text-sm text-ink-700 hover:text-ink-900 font-medium border-b border-ink-300"
           >
             Try again
           </button>
@@ -99,29 +99,29 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Link
           href="/dashboard/admin/owner-requests"
-          className="p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow"
+          className="p-6 bg-white rounded border border-gray-300 hover:border-gray-400 transition-colors"
         >
-          <div className="text-3xl mb-3">📋</div>
-          <h3 className="font-semibold text-gray-900">Owner Requests</h3>
-          <p className="text-sm text-gray-600 mt-2">Review and approve owner requests</p>
+          <div className="text-4xl mb-4 opacity-40">📋</div>
+          <h3 className="font-medium text-ink-900">Owner Requests</h3>
+          <p className="text-sm text-ink-500 mt-2">Review and approve owner requests</p>
         </Link>
 
         <Link
           href="/dashboard/admin/users"
-          className="p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow"
+          className="p-6 bg-white rounded border border-gray-300 hover:border-gray-400 transition-colors"
         >
-          <div className="text-3xl mb-3">👥</div>
-          <h3 className="font-semibold text-gray-900">User Management</h3>
-          <p className="text-sm text-gray-600 mt-2">View and manage all system users</p>
+          <div className="text-4xl mb-4 opacity-40">👥</div>
+          <h3 className="font-medium text-ink-900">User Management</h3>
+          <p className="text-sm text-ink-500 mt-2">View and manage all system users</p>
         </Link>
 
         <Link
           href="#"
-          className="p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow"
+          className="p-6 bg-white rounded border border-gray-300 hover:border-gray-400 transition-colors"
         >
-          <div className="text-3xl mb-3">📊</div>
-          <h3 className="font-semibold text-gray-900">Reports</h3>
-          <p className="text-sm text-gray-600 mt-2">View system reports and analytics</p>
+          <div className="text-4xl mb-4 opacity-40">📊</div>
+          <h3 className="font-medium text-ink-900">Reports</h3>
+          <p className="text-sm text-ink-500 mt-2">View system reports and analytics</p>
         </Link>
       </div>
 

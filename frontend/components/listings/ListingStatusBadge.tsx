@@ -12,17 +12,20 @@ export default function ListingStatusBadge({
   const statusConfig = {
     draft: {
       bg: 'bg-gray-100',
-      text: 'text-gray-700',
+      border: 'border-gray-300',
+      text: 'text-ink-700',
       label: 'Draft',
     },
     published: {
-      bg: 'bg-green-100',
-      text: 'text-green-700',
+      bg: 'bg-ink-900',
+      border: 'border-ink-900',
+      text: 'text-white',
       label: 'Published',
     },
     archived: {
-      bg: 'bg-red-100',
-      text: 'text-red-700',
+      bg: 'bg-white',
+      border: 'border-ink-300',
+      text: 'text-ink-600',
       label: 'Archived',
     },
   };
@@ -32,7 +35,7 @@ export default function ListingStatusBadge({
 
   return (
     <span
-      className={`inline-flex items-center font-medium rounded-full ${config.bg} ${config.text} ${sizeClass}`}
+      className={`inline-flex items-center font-medium rounded border ${config.bg} ${config.border} ${config.text} ${sizeClass}`}
     >
       {config.label}
     </span>

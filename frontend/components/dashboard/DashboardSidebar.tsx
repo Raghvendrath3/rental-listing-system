@@ -50,40 +50,40 @@ export default function DashboardSidebar() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <aside className="w-64 bg-gray-900 text-white min-h-screen flex flex-col sticky top-0">
+    <aside className="w-64 bg-white border-r border-gray-300 min-h-screen flex flex-col sticky top-0">
       {/* Sidebar Header */}
-      <div className="p-6 border-b border-gray-800">
-        <h2 className="text-xl font-bold text-blue-400">Dashboard</h2>
+      <div className="p-6 border-b border-gray-300 space-y-2">
+        <h2 className="text-lg font-semibold text-ink-900">Dashboard</h2>
         {user && (
-          <p className="text-sm text-gray-400 mt-2 truncate">{user.email}</p>
+          <p className="text-sm text-ink-500 truncate">{user.email}</p>
         )}
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      <nav className="flex-1 px-4 py-6 space-y-1">
         {allNavItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+            className={`flex items-center gap-3 px-4 py-3 rounded transition-colors ${
               isActive(item.href)
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                ? 'bg-ink-900 text-white'
+                : 'text-ink-600 hover:bg-gray-100 hover:text-ink-900'
             }`}
           >
-            <span className="text-xl">{item.icon}</span>
+            <span className="text-lg flex-shrink-0">{item.icon}</span>
             <span className="text-sm font-medium">{item.label}</span>
           </Link>
         ))}
       </nav>
 
       {/* Sidebar Footer */}
-      <div className="p-4 border-t border-gray-800">
+      <div className="p-4 border-t border-gray-300">
         <Link
           href="/dashboard/profile"
-          className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors"
+          className="flex items-center gap-3 px-4 py-3 rounded text-ink-600 hover:bg-gray-100 hover:text-ink-900 transition-colors"
         >
-          <span className="text-xl">⚙️</span>
+          <span className="text-lg flex-shrink-0">⚙️</span>
           <span className="text-sm font-medium">Settings</span>
         </Link>
       </div>

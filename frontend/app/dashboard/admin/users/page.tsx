@@ -111,17 +111,17 @@ export default function AdminUsersPage() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-        <p className="text-gray-600 mt-2">View and manage all system users</p>
+        <h1 className="text-4xl font-medium text-ink-900">User Management</h1>
+        <p className="text-ink-500 mt-2">View and manage all system users</p>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700 text-sm">{error}</p>
+        <div className="mb-6 p-4 bg-white border border-ink-300 rounded">
+          <p className="text-ink-600 text-sm">{error}</p>
           <button
             onClick={() => fetchUsers()}
-            className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium"
+            className="mt-2 text-sm text-ink-700 hover:text-ink-900 font-medium border-b border-ink-300"
           >
             Try again
           </button>
@@ -130,25 +130,25 @@ export default function AdminUsersPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="p-4 bg-white rounded-lg border border-gray-200">
-          <p className="text-sm text-gray-600">Total Users</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{totalUsers}</p>
+        <div className="p-4 bg-white rounded border border-gray-300">
+          <p className="text-xs uppercase text-ink-500 font-medium tracking-wide">Total Users</p>
+          <p className="text-3xl font-medium text-ink-900 mt-2">{totalUsers}</p>
         </div>
-        <div className="p-4 bg-white rounded-lg border border-gray-200">
-          <p className="text-sm text-gray-600">Owners</p>
-          <p className="text-3xl font-bold text-blue-600 mt-2">{ownerCount}</p>
+        <div className="p-4 bg-white rounded border border-gray-300">
+          <p className="text-xs uppercase text-ink-500 font-medium tracking-wide">Owners</p>
+          <p className="text-3xl font-medium text-ink-900 mt-2">{ownerCount}</p>
         </div>
-        <div className="p-4 bg-white rounded-lg border border-gray-200">
-          <p className="text-sm text-gray-600">Regular Users</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{userCount}</p>
+        <div className="p-4 bg-white rounded border border-gray-300">
+          <p className="text-xs uppercase text-ink-500 font-medium tracking-wide">Regular Users</p>
+          <p className="text-3xl font-medium text-ink-900 mt-2">{userCount}</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4 mb-8">
+      <div className="bg-white rounded border border-gray-300 p-4 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-ink-900 mb-2">
               Search by Email
             </label>
             <input
@@ -156,17 +156,17 @@ export default function AdminUsersPage() {
               value={searchEmail}
               onChange={(e) => setSearchEmail(e.target.value)}
               placeholder="Enter email address..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-ink-500 bg-white text-ink-900 placeholder-ink-300"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-ink-900 mb-2">
               Filter by Role
             </label>
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-ink-500 bg-white text-ink-900"
             >
               <option value="all">All Roles</option>
               <option value="user">Users</option>
@@ -177,7 +177,7 @@ export default function AdminUsersPage() {
           <div className="flex items-end">
             <button
               onClick={handleSearch}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+              className="w-full px-4 py-2 bg-ink-900 text-white rounded border border-ink-900 hover:bg-ink-800 transition-colors font-medium"
             >
               Search
             </button>
@@ -192,33 +192,33 @@ export default function AdminUsersPage() {
       {!isLoading && (
         <>
           {users.length === 0 ? (
-            <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-              <p className="text-gray-600">No users found matching your criteria</p>
+            <div className="bg-white rounded border border-gray-300 p-12 text-center">
+              <p className="text-ink-500">No users found matching your criteria</p>
             </div>
           ) : (
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded border border-gray-300 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-gray-100 border-b border-gray-300">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-ink-700 uppercase">
                         Email
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-ink-700 uppercase">
                         Role
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-ink-700 uppercase">
                         Joined
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-ink-700 uppercase">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-300">
                     {users.map((user) => (
                       <tr key={user.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                        <td className="px-6 py-4 text-sm font-medium text-ink-900">
                           {user.email}
                         </td>
                         <td className="px-6 py-4 text-sm">
@@ -226,12 +226,12 @@ export default function AdminUsersPage() {
                             value={user.role}
                             onChange={(e) => handleRoleChange(user.id, e.target.value)}
                             disabled={actionLoading === user.id}
-                            className={`px-3 py-1 rounded-md text-sm font-semibold border ${
+                            className={`px-3 py-1 rounded text-sm font-medium border ${
                               user.role === 'admin'
-                                ? 'bg-red-100 text-red-700 border-red-300'
+                                ? 'bg-ink-900 text-white border-ink-900'
                                 : user.role === 'owner'
-                                ? 'bg-blue-100 text-blue-700 border-blue-300'
-                                : 'bg-gray-100 text-gray-700 border-gray-300'
+                                ? 'bg-ink-900 text-white border-ink-900'
+                                : 'bg-white text-ink-700 border-gray-300'
                             } disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
                             <option value="user">User</option>
@@ -239,14 +239,14 @@ export default function AdminUsersPage() {
                             <option value="admin">Admin</option>
                           </select>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">
+                        <td className="px-6 py-4 text-sm text-ink-600">
                           {formatDate(user.created_at)}
                         </td>
                         <td className="px-6 py-4 text-sm">
                           <button
                             onClick={() => setDeletingUserId(user.id)}
                             disabled={actionLoading === user.id}
-                            className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs font-medium"
+                            className="px-3 py-1 bg-white text-ink-600 border border-ink-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs font-medium"
                           >
                             Delete
                           </button>
@@ -286,23 +286,23 @@ export default function AdminUsersPage() {
 
       {/* Delete Confirmation Modal */}
       {deletingUserId !== null && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Delete User</h2>
-            <p className="text-gray-600 text-sm mb-6">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded border border-gray-300 shadow-lg max-w-md w-full p-6">
+            <h2 className="text-lg font-medium text-ink-900 mb-4">Delete User</h2>
+            <p className="text-ink-600 text-sm mb-6">
               Are you sure you want to delete this user? This action will also delete all their listings and cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeletingUserId(null)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded text-ink-700 hover:bg-gray-50 transition-colors font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={() => deletingUserId && handleDeleteUser(deletingUserId)}
                 disabled={actionLoading === deletingUserId}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 px-4 py-2 bg-ink-900 text-white rounded border border-ink-900 hover:bg-ink-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 {actionLoading === deletingUserId ? 'Deleting...' : 'Delete'}
               </button>

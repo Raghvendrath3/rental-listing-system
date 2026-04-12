@@ -25,27 +25,25 @@ const FormField = forwardRef<HTMLInputElement, Props>(function FormField({
   const hasError = !!error && isTouched;
 
   return (
-    <div className="field-group">
-      <label className="label" htmlFor={id}>
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-ink-900" htmlFor={id}>
         {label}
       </label>
 
       <div
-        className={[
-          'input-wrapper',
-          hasError ? 'input-error' : '',
-          isValid && !hasError ? 'input-valid' : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
+        className={`flex items-center gap-3 px-4 py-3 rounded border transition-colors ${
+          hasError
+            ? 'bg-white border-ink-300 focus-within:border-ink-500'
+            : 'bg-white border-gray-300 focus-within:border-ink-500'
+        }`}
       >
-        <span className="input-icon" aria-hidden="true">
+        <span className="text-ink-400 flex-shrink-0" aria-hidden="true">
           {leftIcon}
         </span>
 
         <input
           id={id}
-          className="input"
+          className="flex-1 bg-transparent text-ink-900 placeholder-ink-300 outline-none text-sm"
           aria-invalid={hasError}
           aria-describedby={
             hasError ? `${id}-error` : children ? `${id}-hint` : undefined
@@ -55,16 +53,16 @@ const FormField = forwardRef<HTMLInputElement, Props>(function FormField({
 
         {/* Right slot: show/hide toggle OR checkmark */}
         {rightSlot ?? (isValid && !hasError && (
-          <span className="check-icon" aria-hidden="true">✓</span>
+          <span className="text-ink-500 text-lg font-medium flex-shrink-0" aria-hidden="true">✓</span>
         ))}
       </div>
 
       {/* Below-input slot (e.g. strength bar) */}
-      {children && <div id={`${id}-hint`}>{children}</div>}
+      {children && <div id={`${id}-hint`} className="text-sm">{children}</div>}
 
       {/* Inline error */}
       {hasError && (
-        <p id={`${id}-error`} className="field-error" role="alert">
+        <p id={`${id}-error`} className="text-sm text-ink-600" role="alert">
           {error}
         </p>
       )}

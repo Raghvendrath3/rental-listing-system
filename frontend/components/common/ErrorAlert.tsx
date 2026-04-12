@@ -8,18 +8,18 @@ interface ErrorAlertProps {
 
 export default function ErrorAlert({ message, onRetry, onDismiss }: ErrorAlertProps) {
   return (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div className="flex items-start gap-3">
-        <span className="text-red-600 text-lg font-bold flex-shrink-0">✕</span>
+    <div className="bg-white border border-ink-300 rounded p-4 mb-6">
+      <div className="flex items-start gap-4">
+        <span className="text-ink-600 text-lg font-bold flex-shrink-0">⚠</span>
         <div className="flex-1">
-          <h3 className="text-red-900 font-semibold mb-1">Error</h3>
-          <p className="text-red-800 text-sm">{message}</p>
+          <h3 className="text-ink-900 font-semibold mb-1">Error</h3>
+          <p className="text-ink-600 text-sm">{message}</p>
           {(onRetry || onDismiss) && (
             <div className="flex gap-3 mt-3">
               {onRetry && (
                 <button
                   onClick={onRetry}
-                  className="text-sm font-medium text-red-600 hover:text-red-700 underline"
+                  className="text-sm font-medium text-ink-900 hover:text-ink-700 border-b border-ink-300"
                 >
                   Try again
                 </button>
@@ -27,7 +27,7 @@ export default function ErrorAlert({ message, onRetry, onDismiss }: ErrorAlertPr
               {onDismiss && (
                 <button
                   onClick={onDismiss}
-                  className="text-sm font-medium text-red-600 hover:text-red-700 underline"
+                  className="text-sm font-medium text-ink-900 hover:text-ink-700 border-b border-ink-300"
                 >
                   Dismiss
                 </button>
