@@ -1,0 +1,142 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENALHUB DESIGN SYSTEM — DESIGN TOKENS
+   Refined Monochromatic Minimalism
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─── COLOR SYSTEM — Monochromatic Ink Palette ─── */
+  --color-950: #0a0a0a;   /* Near-black base, backgrounds */
+  --color-900: #111111;   /* Very dark surfaces */
+  --color-800: #1c1c1c;   /* Dark interactive elements */
+  --color-700: #2e2e2e;   /* Interactive, hover states */
+  --color-600: #404040;   /* Muted elements */
+  --color-500: #5c5c5c;   /* Muted text, secondary */
+  --color-300: #a3a3a3;   /* Secondary text, borders */
+  --color-100: #e8e8e8;   /* Light borders */
+  --color-050: #f5f5f5;   /* Light backgrounds */
+  --color-000: #ffffff;   /* Pure white surfaces */
+
+  /* ─── SEMANTIC COLORS ─── */
+  --color-error: #dc2626;   /* Error states */
+  --color-success: #16a34a;  /* Success states */
+  --color-warning: #d97706;  /* Warning states */
+  --color-info: #0284c7;    /* Info states */
+
+  /* ─── ACCENT COLOR (Optional, used sparingly) ─── */
+  --color-accent: #6366f1;  /* Indigo for CTAs, limited use */
+
+  /* ─── TYPOGRAPHY SCALE (1.25 modular scale) ─── */
+  --text-xs: 0.64rem;     /* 10.24px — labels, captions */
+  --text-sm: 0.8rem;      /* 12.8px — secondary info */
+  --text-base: 1rem;      /* 16px — body text */
+  --text-lg: 1.25rem;     /* 20px — subheadings */
+  --text-xl: 1.563rem;    /* 25px — headings */
+  --text-2xl: 1.953rem;   /* 31px — section headings */
+  --text-3xl: 2.441rem;   /* 39px — page titles */
+
+  /* ─── LINE HEIGHT ─── */
+  --leading-tight: 1.1;   /* Headings */
+  --leading-normal: 1.5;  /* Body */
+  --leading-relaxed: 1.6; /* Text blocks */
+  --leading-loose: 1.8;   /* Articles */
+
+  /* ─── LETTER SPACING ─── */
+  --tracking-tight: -0.02em;  /* Headings */
+  --tracking-normal: 0em;     /* Body */
+  --tracking-wide: 0.01em;    /* ALL CAPS labels */
+  --tracking-wider: 0.05em;   /* Emphasis */
+
+  /* ─── FONT FAMILIES ─── */
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  /* ─── SPACING SCALE (4px base unit) ─── */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* ─── BORDER RADIUS ─── */
+  --radius-xs: 4px;      /* Small inputs, tags */
+  --radius-sm: 6px;      /* Buttons, inputs, small cards */
+  --radius-md: 8px;      /* Medium components */
+  --radius-lg: 12px;     /* Cards, modals, panels */
+  --radius-full: 999px;  /* Pills, avatars, circles */
+
+  /* ─── SHADOWS (Border-based depth only) ─── */
+  /* NO drop shadows — use border + background contrast instead */
+
+  /* ─── ANIMATION EASING ─── */
+  --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);     /* Elements entering */
+  --ease-in: cubic-bezier(0.4, 0.0, 1, 1);        /* Elements leaving */
+  --ease-inout: cubic-bezier(0.4, 0.0, 0.2, 1);   /* State changes */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Playful micro */
+
+  /* ─── ANIMATION DURATION ─── */
+  --dur-fast: 100ms;    /* Hover bg color changes */
+  --dur-base: 200ms;    /* Button clicks, input focus */
+  --dur-slow: 350ms;    /* Modals, drawers, transitions */
+  --dur-slower: 600ms;  /* Page load reveals */
+
+  /* ─── PHANTOM-UI SKELETON THEMING ─── */
+  --phantom-bg: var(--color-100);         /* Skeleton base surface */
+  --phantom-highlight: var(--color-050);  /* Shimmer highlight */
+  --phantom-duration: 1.8s;               /* Sync with --dur-slower */
+  --phantom-radius: 6px;                  /* Match component radius */
+
+  /* ─── LAYOUT CONSTRAINTS ─── */
+  --max-width-full: 1200px;     /* Page max width */
+  --max-width-content: 720px;   /* Text content width */
+  --max-width-narrow: 600px;    /* Forms, narrow sections */
+
+  /* ─── Z-INDEX SCALE ─── */
+  --z-sticky: 10;
+  --z-fixed: 20;
+  --z-dropdown: 100;
+  --z-modal: 1000;
+  --z-toast: 1100;
+
+  /* ─── TRANSITIONS ─── */
+  --transition-fast: opacity var(--dur-fast) var(--ease-out);
+  --transition-base: opacity var(--dur-base) var(--ease-out);
+  --transition-slow: opacity var(--dur-slow) var(--ease-out);
+  --transition-color: color var(--dur-base) var(--ease-inout);
+  --transition-bg: background-color var(--dur-base) var(--ease-inout);
+  --transition-border: border-color var(--dur-base) var(--ease-inout);
+  --transition-transform: transform var(--dur-base) var(--ease-out);
+}
+
+/* ─── DARK MODE (Optional fallback) ─── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-950: #ffffff;
+    --color-900: #f5f5f5;
+    --color-800: #e8e8e8;
+    --color-700: #d1d5db;
+    --color-600: #9ca3af;
+    --color-500: #6b7280;
+    --color-300: #374151;
+    --color-100: #1f2937;
+    --color-050: #111827;
+    --color-000: #0a0a0a;
+  }
+}
+
+/* ─── REDUCE MOTION ─── */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+    --dur-slower: 0ms;
+    --phantom-duration: 0s;
+  }
+}
