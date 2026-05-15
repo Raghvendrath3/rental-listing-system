@@ -1,4 +1,4 @@
-const {postUsersRepository, findUserByEmail, becomeOwner, findUserById} = require('../repositories/users.repository')
+const {postUsersRepository, findUserByEmail, findUserById} = require('../repositories/users.repository')
 const AppErrors = require('../errors/AppErrors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -51,7 +51,6 @@ async function passwordHash(password){
 async function postUsersService(newUser){
   validateUser(newUser);
   newUser.password = await passwordHash(newUser.password);
-  console.log("Hashed password:", newUser);
   const createdUser = await postUsersRepository(newUser);
   return createdUser;
 }
@@ -76,22 +75,13 @@ async function loginService(loginDetails){
   if (!isPasswordValid) {
     throw new AppErrors('Invalid email or password', 401);
   }
-  const jwtToken = generateJWT(user);
-  return jwtToken + '|' + user.id + '|' + user.role; // Return token along with user info
+  const token = generateJWT(user);
+  return { token, id: user.id, role: user.role };
 }
 
-async function becomeOwnerService(actor) {
-  const user = await findUserById(actor.id);
-  if (user.role !== 'user') {
-    throw new AppErrors('User is not eligible to become an owner', 400);
-  }
-  // Simulate updating user role in the database
-  const updatedUser = await becomeOwner(actor.id);
-  return updatedUser;
-}
+
 
 module.exports = {
   postUsersService,
   loginService,
-  becomeOwnerService
 }

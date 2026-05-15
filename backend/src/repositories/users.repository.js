@@ -3,7 +3,7 @@ const AppErrors = require('../errors/AppErrors');
 
 async function postUsersReposetory(newUser) {
   const { email, password } = newUser;
-  console.log("le bete",email, password);
+
   const query = 'INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING *';
   const values = [email, password, 'user'];
 
@@ -25,17 +25,14 @@ async function findUserById(id) {
   return result.rows[0];
 }
 
-async function becomeOwner(id) {
-  const newRole = 'owner';
-  const query = 'UPDATE users SET role = $1 WHERE id = $2 RETURNING *';
-  const values = [newRole, id];
-  const result = await pool.query(query, values);
-  return result.rows[0];
+async function countUsers() {
+  const result = await pool.query('SELECT COUNT(*) FROM users');
+  return parseInt(result.rows[0].count, 10);
 }
 
 module.exports = {
   postUsersRepository: postUsersReposetory,
   findUserByEmail: findUserByEmail,
-  becomeOwner: becomeOwner,
-  findUserById: findUserById
+  findUserById: findUserById,
+  countUsers
 }

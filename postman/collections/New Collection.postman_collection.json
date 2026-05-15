@@ -1,0 +1,52 @@
+{
+  "info": {
+    "_postman_id": "e171a163-9cad-4d1f-9605-98c08c602b0e",
+    "name": "rentalHub",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "http://localhost:5000/users/login",
+      "id": "35c6c700-1a55-421d-bf0a-70aeaf4f88a5",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3NzY2NTkzMiwiZXhwIjoxNzc3NjY5NTMyfQ.mS8-nQBoqZopH2U2HP-SP6YdNbJxtJcKP8HCoWZ06nI",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"userExample@gmail.com\",\r\n    \"password\": \"User@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/users/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "users",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

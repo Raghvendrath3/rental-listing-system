@@ -11,13 +11,17 @@ app.use(express.json());
 app.use(cors());
 
 // routes
-app.use("/health", healthRoutes);
+app.use("/api/v1/health", healthRoutes);
 
-app.use('/test', testRoutes);
+app.use('/api/v1/test', testRoutes);
 
-app.use('/listings', require('./routes/listings.routes'));
+app.use('/api/v1/listings', require('./routes/listings.routes'));
 
-app.use('/users', require('./routes/users.routes'));
+app.use('/api/v1/auth', require('./routes/users.routes'));
+
+app.use('/api/v1/admin', require('./routes/admin.routes'));
+
+app.use('/api/v1/owner', require('./routes/owner.routes'));
 
 // fallback error handler (basic for now)
 app.use((err, req, res, next) => {
