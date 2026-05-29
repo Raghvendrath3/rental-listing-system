@@ -8,7 +8,7 @@ async function ownerListingsRepository(ownerId){
 
     const result = await pool.query(query, [ownerId]); // Fix: ownerId must be wrapped in an array — pg driver requires params as an array
     return result.rows; // Fix: return all rows, not just the first one
-
+    
   } catch (error) {
     throw new AppErrors("listings not found", 404); // Fix: was missing `throw new`, error was silently swallowed
   }

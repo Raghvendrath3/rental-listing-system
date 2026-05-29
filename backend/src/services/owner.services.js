@@ -12,15 +12,16 @@ const { assertOwnerOrAdmin } = require('./authorization'); // Fix: was called in
 
 async function getOwnerListingsService(ownerId) {
   try {
-    const result = await ownerListingsRepository;
+    const result = await ownerListingsRepository(ownerId);
+
     return {
       status: "success",
-      result: result
+      result: result ?? []
     };
-  } catch (error) {
-    AppError("No Listings get", 404)
-  }
 
+  } catch (error) {
+    throw new AppError("Failed to fetch owner listings", 404);
+  }
 }
 
 // Service to get listings for an owner
