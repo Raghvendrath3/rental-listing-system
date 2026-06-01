@@ -1,0 +1,21 @@
+# Monorepo dependencies and build outputs
+node_modules/
+.next/
+dist/
+build/
+coverage/
+
+# Locks and static assets
+package-lock.json
+pnpm-lock.yaml
+database_schema.sql
+public/
+
+# Editor/OS settings
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln

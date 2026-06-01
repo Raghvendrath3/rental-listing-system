@@ -1,8 +1,5 @@
 # ==============================================================================
-# 🐳 RENTAL HUB — PRODUCTION DOCKER ORCHESTRATION CONFIGURATION (compose.yaml)
-# ==============================================================================
-# This file is identical to docker-compose.yml for backwards and modern docker
-# CLI compatibility.
+# 🐳 RENTAL HUB — PRODUCTION DOCKER ORCHESTRATION CONFIGURATION (docker-compose.yml)
 # ==============================================================================
 
 version: '3.8'
