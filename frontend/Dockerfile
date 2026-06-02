@@ -3,7 +3,7 @@
 # ==============================================================================
 
 # --- 1. DEPENDENCY STAGE ---
-FROM node:18-alpine AS deps
+FROM node:20-alpine AS base
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
@@ -11,18 +11,14 @@ WORKDIR /app
 COPY package.json package-lock.json* pnpm-lock.yaml* ./
 
 # Install dependencies (including devDependencies for build engines)
-RUN \
-  if [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  else npm install; \
-  fi
+RUN npm ci
 
 # --- 2. BUILDER STAGE ---
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy dependencies from stage 1
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=base /app/node_modules ./node_modules
 COPY . .
 
 # Environment variables needed at BUILD TIME (baked into static JS client-side bundles)
@@ -35,7 +31,7 @@ ENV NODE_ENV=production
 RUN npm run build
 
 # --- 3. RUNNER STAGE ---
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 # Production environment configurations

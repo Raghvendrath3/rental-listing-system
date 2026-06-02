@@ -4,7 +4,14 @@ node_modules/
 # Local Environment Variables & Secrets
 .env
 .env.local
+.env.*.local
+.env.docker
+.env.development
+.env.production
+.env.test
+.env.staging
 *.env
+*.env.local
 
 # Diagnostic Logs
 logs/
