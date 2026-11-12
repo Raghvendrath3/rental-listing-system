@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore, selectIsAuthenticated, selectUserRole } from '@/stores/authStore';
-import { Spinner } from '@/components/ui/spinner';
 
 interface RedirectIfAuthenticatedProps {
   children: React.ReactNode;
@@ -23,11 +22,8 @@ export function RedirectIfAuthenticated({ children }: RedirectIfAuthenticatedPro
   const pathname = usePathname();
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const userRole = useAuthStore(selectUserRole);
-  const isHydrated = useAuthStore((state) => state.isHydrated);
 
   useEffect(() => {
-    if (!isHydrated) return;
-
     if (isAuthenticated && userRole) {
       // Redirect authenticated users based on their role
       if (pathname === '/login' || pathname === '/register') {
@@ -43,21 +39,13 @@ export function RedirectIfAuthenticated({ children }: RedirectIfAuthenticatedPro
         }
       }
     }
-  }, [isHydrated, isAuthenticated, userRole, pathname, router]);
+  }, [isAuthenticated, userRole, pathname, router]);
 
-  if (!isHydrated) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
-
-  // Show spinner while redirecting
+  // Keep the auth page rendered while storage hydrates and redirect after it does.
   if (isAuthenticated) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Spinner size="lg" />
+      <div className="mx-auto max-w-5xl px-4 py-8" aria-busy="true" aria-label="Redirecting">
+        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
       </div>
     );
   }

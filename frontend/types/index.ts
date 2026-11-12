@@ -20,6 +20,11 @@ export interface Listing {
   owner_name?: string;
 }
 
+export type PublicListing = Pick<
+  Listing,
+  'id' | 'title' | 'type' | 'city' | 'area' | 'price' | 'is_available'
+>;
+
 export interface OwnerRequest {
   id: number;
   user_id: number;

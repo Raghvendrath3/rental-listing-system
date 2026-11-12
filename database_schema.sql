@@ -154,6 +154,12 @@ CREATE INDEX idx_owner_requests_status ON owner_requests USING btree (status);
 CREATE UNIQUE INDEX unique_pending_owner_request ON owner_requests(user_id)
 WHERE status = 'pending';
 
+CREATE INDEX idx_listings_status_city_type ON listings (status, city, type);
+CREATE INDEX idx_listings_owner_city_type ON listings (owner_id, city, type);
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX idx_listings_title_trgm ON listings USING GIN (title gin_trgm_ops);
+
 -- Triggers
 CREATE TRIGGER trg_force_email_lowercase
 BEFORE INSERT OR UPDATE ON users

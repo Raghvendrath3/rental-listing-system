@@ -41,20 +41,17 @@ async function findAll(filters, offset) {
 
   // Build the WHERE clause once
   const whereClause = filtersArray.length > 0 ? ` WHERE ` + filtersArray.join(' AND ') : '';
+  const columns = filters.ignoreStatus
+    ? 'id, title, type, city, area, price, is_available, owner_id, status, published_at, archived_at'
+    : 'id, title, type, city, area, price, is_available';
 
-  // 3. Execute Count Query
-  const countResult = await dbQuery(
-    `SELECT COUNT(*) FROM listings${whereClause}`, 
-    values
-  );
-  
-  // 4. Execute Main Query with Pagination
-  const finalQuery = `SELECT * FROM listings${whereClause} LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
-  
-  const listingResult = await dbQuery(
-    finalQuery, 
-    [...values, filters.limit, offset]
-  );
+  const [countResult, listingResult] = await Promise.all([
+    dbQuery(`SELECT COUNT(*) FROM listings${whereClause}`, values),
+    dbQuery(
+      `SELECT ${columns} FROM listings${whereClause} LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
+      [...values, filters.limit, offset]
+    )
+  ]);
 
   return {
     rows: listingResult.rows,

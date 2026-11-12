@@ -66,7 +66,7 @@ export const PASSWORD_REQUIREMENTS = {
 export const TOKEN_EXPIRY_HOURS = 1;
 
 // Debounce timing for search
-export const SEARCH_DEBOUNCE_MS = 400;
+export const SEARCH_DEBOUNCE_MS = 200;
 
 // Toast auto-dismiss duration
 export const TOAST_DURATION_MS = 4000;

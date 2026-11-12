@@ -51,6 +51,16 @@ async function runMigration() {
       );
     `);
 
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_listings_status_city_type
+      ON listings (status, city, type);
+      CREATE INDEX IF NOT EXISTS idx_listings_owner_city_type
+      ON listings (owner_id, city, type);
+      CREATE EXTENSION IF NOT EXISTS pg_trgm;
+      CREATE INDEX IF NOT EXISTS idx_listings_title_trgm
+      ON listings USING GIN (title gin_trgm_ops);
+    `);
+
     // 4. Enable Row Level Security (RLS) on inquiries table
     console.log('Enabling Row Level Security on inquiries table...');
     await client.query(`

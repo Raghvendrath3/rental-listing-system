@@ -3,7 +3,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore, selectIsAuthenticated, selectUserRole } from '@/stores/authStore';
-import { Spinner } from '@/components/ui/spinner';
 import type { Role } from '@/types';
 
 interface ProtectedRouteProps {
@@ -65,11 +64,15 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     }
   }, [isHydrated, isAuthenticated, userRole, allowedRoles, pathname, router]);
 
-  // Show spinner while checking authentication
   if (!isHydrated) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Spinner size="lg" />
+      <div className="mx-auto max-w-5xl space-y-6 px-4 py-8" aria-busy="true" aria-label="Loading protected page">
+        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[0, 1, 2].map((item) => (
+            <div key={item} className="h-48 animate-pulse rounded-xl border bg-muted/50" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -77,8 +80,8 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   // Don't render children if not authenticated (they'll be redirected)
   if (!isAuthenticated) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Spinner size="lg" />
+      <div className="mx-auto max-w-5xl px-4 py-8" aria-busy="true" aria-label="Redirecting to sign in">
+        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
       </div>
     );
   }
@@ -86,8 +89,8 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   // Don't render children if user doesn't have required role (they'll be redirected)
   if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Spinner size="lg" />
+      <div className="mx-auto max-w-5xl px-4 py-8" aria-busy="true" aria-label="Redirecting to your page">
+        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
       </div>
     );
   }
