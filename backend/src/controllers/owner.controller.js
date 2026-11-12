@@ -1,5 +1,4 @@
 const {
-  getOwnerListingsService,
   ownerListingService,
   adminListingService, 
   listingServiceById, 
@@ -10,19 +9,6 @@ const {
   archiveListingService
 } = require('../services/owner.services');
 
-async function ownerListingsController(req, res, next) {
-  try {
-    const ownerId = req.user.id;
-    const listings = await getOwnerListingsService(ownerId);
-    res.status(200).json({
-      status: 'success',
-      data: listings
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
 // Getting owner listings
 const getOwnerListings = async (req, res, next) => {
   try {
@@ -30,40 +16,14 @@ const getOwnerListings = async (req, res, next) => {
       q: req.query.q,
       city: req.query.city,
       type: req.query.type,
-      priceMin: req.query.priceMin ? Number(req.query.priceMin) : undefined,
-      priceMax: req.query.priceMax ? Number(req.query.priceMax) : undefined,
+      priceMin: req.query.priceMin !== undefined ? Number(req.query.priceMin) : undefined,
+      priceMax: req.query.priceMax !== undefined ? Number(req.query.priceMax) : undefined,
       page: req.query.page || 1,
       limit: req.query.limit || 10
     };
-    const listings = await ownerListingService(filters, req.user.id);
-    return res.status(200).json({
-      status: 'success',
-      meta: {
-        page: listings.page,
-        limit: Number(filters.limit),
-        totalItems: listings.count,
-        totalPages: listings.totalPages,
-      },
-      data: listings.listings
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-// Getting admin listings
-const getAdminListings = async (req, res, next) => {
-  try {
-    const filters = {
-      q: req.query.q,
-      city: req.query.city,
-      type: req.query.type,
-      priceMin: req.query.priceMin ? Number(req.query.priceMin) : undefined,
-      priceMax: req.query.priceMax ? Number(req.query.priceMax) : undefined,
-      page: req.query.page || 1,
-      limit: req.query.limit || 10
-    };
-    const listings = await adminListingService(filters);
+    const listings = req.user.role === 'admin'
+      ? await adminListingService(filters)
+      : await ownerListingService(filters, req.user.id);
     return res.status(200).json({
       status: 'success',
       meta: {
@@ -83,7 +43,11 @@ const getAdminListings = async (req, res, next) => {
 const getListingsById = async (req, res, next) => {
   try {
     const listingId = Number(req.params.id);
-    const listings = await listingServiceById(listingId);
+    const actor = {
+      id: req.user.id,
+      role: req.user.role
+    };
+    const listings = await listingServiceById(listingId, actor);
 
      // Check if listings is null, undefined, or an empty array
     if (!listings || (Array.isArray(listings) && listings.length === 0)) {
@@ -116,7 +80,7 @@ const postListings = async (req, res, next) => {
       city: payload.city,
       area: payload.area,
       price: payload.price,
-      is_available: payload.is_available || true,
+      is_available: payload.is_available ?? true,
       owner_id: actor.id
     };
     const listings = await postListingService(actor, newListing);
@@ -218,9 +182,7 @@ async function archiveListing(req, res, next){
 
 
 module.exports = {
-  ownerListingsController,
   getOwnerListings,
-  getAdminListings, 
   getListingsById, 
   postListings, 
   updateListing, 

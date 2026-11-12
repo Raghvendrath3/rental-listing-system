@@ -34,7 +34,6 @@ export function Navbar() {
 
     if (userRole === 'owner') {
       items.push({ href: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" /> });
-      items.push({ href: '/owner-status', label: 'Owner Status', icon: <Users className="h-4 w-4" /> });
     }
 
     if (userRole === 'admin') {
@@ -51,8 +50,10 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/listings" className="text-lg font-semibold text-foreground">
-            Rentals
+          <Link href="/listings" className="text-xl font-bold tracking-tight text-primary flex items-center gap-2">
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              RentalHub
+            </span>
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             {navItems.map((item) => (

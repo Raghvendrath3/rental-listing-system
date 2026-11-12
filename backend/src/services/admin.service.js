@@ -1,11 +1,11 @@
 const { countUsers } = require('../repositories/users.repository');
 const { findAllUsers } = require('../repositories/admin.repository'); // Fix: was missing import
-const { pool } = require('../config/db');
+const { query } = require('../config/db');
 
 async function getAdminStatsService() {
   const totalUsers = await countUsers();
 
-  const listingsCountResult = await pool.query(`
+  const listingsCountResult = await query(`
     SELECT status, COUNT(*) as count 
     FROM listings 
     GROUP BY status

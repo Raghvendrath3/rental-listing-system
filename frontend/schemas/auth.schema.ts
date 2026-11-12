@@ -17,6 +17,15 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: passwordSchema,
+  full_name: z.string().min(1, 'Full name is required'),
+  phone: z
+    .string()
+    .min(1, 'Phone number is required')
+    .refine((val) => {
+      const cleanPhone = val.replace(/[\s-]/g, '');
+      return /^(?:\+91|91|0)?[6-9]\d{9}$/.test(cleanPhone);
+    }, 'Invalid Indian phone number format. Must be a 10-digit mobile number.'),
+  address: z.string().min(1, 'Address is required'),
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;

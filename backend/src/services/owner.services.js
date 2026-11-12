@@ -1,6 +1,5 @@
 const AppError = require("../errors/AppErrors");
 const {
-  ownerListingsRepository, 
   findById, 
   addListing, 
   updateListing, 
@@ -9,20 +8,6 @@ const {
   archiveListing} = require("../repositories/owner.repository");
 const { listingService } = require('./listings.service');
 const { assertOwnerOrAdmin } = require('./authorization'); // Fix: was called in updateListingService/deleteListingService but never imported
-
-async function getOwnerListingsService(ownerId) {
-  try {
-    const result = await ownerListingsRepository(ownerId);
-
-    return {
-      status: "success",
-      result: result ?? []
-    };
-
-  } catch (error) {
-    throw new AppError("Failed to fetch owner listings", 404);
-  }
-}
 
 // Service to get listings for an owner
 async function ownerListingService(filters, ownerId) {
@@ -45,9 +30,12 @@ const idVarification = (id) => {
 }
 
 // Service to get listing by ID
-async function listingServiceById(id) {
+async function listingServiceById(id, actor) {
   idVarification(id);
-  const listing = await findById(id);
+  if (!actor || !['user', 'owner', 'admin'].includes(actor.role)) {
+    throw new AppError('Forbidden', 403);
+  }
+  const listing = await findById(id, actor.role, actor.id);
   if (!listing){
     throw new AppError('Listing does not exist', 404);
   }
@@ -66,7 +54,7 @@ const postListingService = async (actor, newListing) => {
 // Service to update an existing listing
 const updateListingService = async (id, updatedFields, actor) => {
   idVarification(id);
-  const listing = await findById(id);
+  const listing = await findById(id, actor.role, actor.id);
 
   if (!listing) {
     throw new AppError('Listing does not exist', 404);
@@ -81,7 +69,7 @@ const updateListingService = async (id, updatedFields, actor) => {
 // Service to delete a listing
 const deleteListingService = async (id, actor) => {
   idVarification(id);
-  const listing = await findById(id);
+  const listing = await findById(id, actor.role, actor.id);
 
   if (!listing) {
     throw new AppError('Listing does not exist', 404);
@@ -125,7 +113,7 @@ function listingExistValidation(listing, actor){
 //publish listing service 
 
 async function publishListingService(listingId, actor) {
-  const listing = await findById(listingId, actor.role);
+  const listing = await findById(listingId, actor.role, actor.id);
   listingExistValidation(listing, actor);
   listingValidation(listing);
   const result = await publishListing(listingId);
@@ -138,7 +126,7 @@ async function publishListingService(listingId, actor) {
 //archive listing service 
 
 async function archiveListingService(listingId, actor) {
-  const listing = await findById(listingId);
+  const listing = await findById(listingId, actor.role, actor.id);
   listingExistValidation(listing, actor);
   if (listing.status !== 'published') {
     throw new AppError('internal conflict', 409);
@@ -151,7 +139,6 @@ async function archiveListingService(listingId, actor) {
 }
 
 module.exports = {
-  getOwnerListingsService,
   ownerListingService,
   adminListingService, 
   listingServiceById, 

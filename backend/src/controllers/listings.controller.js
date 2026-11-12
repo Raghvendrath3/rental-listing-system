@@ -1,13 +1,5 @@
 const {
-  listingService,
-  ownerListingService,
-  adminListingService,
-  listingServiceById, 
-  postListingService, 
-  updateListingService, 
-  deleteListingService,
-  publishListingService,
-  archiveListingService
+  listingService
 } = require('../services/listings.service');
 
 // Getting all listings with pagination and filters
@@ -39,6 +31,34 @@ const getListings = async (req, res, next) => {
 }
 
 
+const { listingServiceById } = require('../services/owner.services');
+
+const getListingById = async (req, res, next) => {
+  try {
+    const listingId = Number(req.params.id);
+    const actor = {
+      id: req.user.id,
+      role: req.user.role
+    };
+    const listing = await listingServiceById(listingId, actor);
+
+    if (!listing) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No listing found with that ID'
+      });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: listing
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = { 
-  getListings
+  getListings,
+  getListingById
 };

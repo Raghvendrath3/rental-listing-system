@@ -63,3 +63,4 @@ pnpm-debug.log*
 lerna-debug.log*
 .VSCodeCounter/
 .env.docker
+admin_seed.sql

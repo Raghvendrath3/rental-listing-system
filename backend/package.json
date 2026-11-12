@@ -16,10 +16,12 @@
   "type": "commonjs",
   "dependencies": {
     "@faker-js/faker": "^10.3.0",
+    "@neon/auth": "^0.8.2",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.18.0"
   },

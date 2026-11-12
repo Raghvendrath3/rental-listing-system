@@ -20,19 +20,21 @@ export const useAuthStore = create<AuthState>((set) => ({
   isHydrated: false,
   
   login: (token: string, user: AuthUser) => {
-    // Store in localStorage
+    // Store in localStorage & Cookie
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEYS.TOKEN, token);
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+      document.cookie = `rental_token=${token}; path=/; max-age=3600; SameSite=Lax`;
     }
     set({ token, user });
   },
   
   logout: () => {
-    // Clear localStorage
+    // Clear localStorage & Cookie
     if (typeof window !== 'undefined') {
       localStorage.removeItem(STORAGE_KEYS.TOKEN);
       localStorage.removeItem(STORAGE_KEYS.USER);
+      document.cookie = 'rental_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     }
     set({ token: null, user: null });
   },

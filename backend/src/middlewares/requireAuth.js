@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const AppError = require('../errors/AppErrors'); // Fix: needed to wrap JWT errors with a proper statusCode
+const { dbContext } = require('../config/db');
 
 module.exports = function requireAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -13,6 +14,11 @@ module.exports = function requireAuth(req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
+    const context = dbContext.getStore();
+    if (context) {
+      context.userId = decoded.id;
+      context.userRole = decoded.role;
+    }
     next();
   } catch (err) {
     next(new AppError('Unauthorized: Invalid or expired token.', 401)); // Fix: raw JWT errors have no statusCode, causing global handler to return 500 instead of 401

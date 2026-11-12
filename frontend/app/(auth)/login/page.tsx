@@ -56,51 +56,57 @@ export default function LoginPage() {
   const isLoading = loginMutation.isPending;
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm bg-card border border-border/80 shadow-md rounded-xl hover-lift p-2">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Welcome Back</CardTitle>
-        <CardDescription>Sign in to your account</CardDescription>
+        <CardTitle className="text-2xl font-bold tracking-tight">Welcome Back</CardTitle>
+        <CardDescription className="text-sm">Sign in to your account to continue</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-sm font-bold text-foreground/80">
+              Email Address
+            </Label>
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
               disabled={isLoading}
+              className="h-12 text-[16px] rounded-lg border-input px-3 bg-card focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               {...register('email')}
             />
             {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
+              <p className="text-sm text-destructive font-medium">{errors.email.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-sm font-bold text-foreground/80">
+              Password
+            </Label>
             <Input
               id="password"
               type="password"
               placeholder="Enter your password"
               autoComplete="current-password"
               disabled={isLoading}
+              className="h-12 text-[16px] rounded-lg border-input px-3 bg-card focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               {...register('password')}
             />
             {errors.password && (
-              <p className="text-sm text-destructive">{errors.password.message}</p>
+              <p className="text-sm text-destructive font-medium">{errors.password.message}</p>
             )}
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
+        <CardFooter className="flex flex-col gap-4 mt-2">
+          <Button type="submit" className="w-full h-12 text-sm font-bold bg-accent hover:bg-accent/90 text-accent-foreground rounded-lg shadow-sm border-0" disabled={isLoading}>
             {isLoading ? <Spinner size="sm" className="mr-2" /> : null}
             {isLoading ? 'Signing in...' : 'Sign In'}
           </Button>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground font-medium">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-primary hover:underline">
-              Register
+            <Link href="/register" className="text-primary hover:underline font-bold">
+              Register here
             </Link>
           </p>
         </CardFooter>

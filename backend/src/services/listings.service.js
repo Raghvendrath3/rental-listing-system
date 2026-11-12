@@ -23,12 +23,15 @@ const { assertOwnerOrAdmin } = require('./authorization');
 
 // Validation for filters
 function filterValidation(filters){
-  if (filters.priceMin !== undefined && filters.priceMax !== undefined){
-    const minPrice = filters.priceMin;
-    const maxPrice = filters.priceMax;
-    if(minPrice < 0 || maxPrice < 0 || maxPrice <= minPrice){
-      throw new AppError("invalid minimum price amount", 400);
-    }
+  const hasMin = filters.priceMin !== undefined;
+  const hasMax = filters.priceMax !== undefined;
+  const minPrice = filters.priceMin;
+  const maxPrice = filters.priceMax;
+
+  if ((hasMin && (!Number.isFinite(minPrice) || minPrice < 0))
+    || (hasMax && (!Number.isFinite(maxPrice) || maxPrice < 0))
+    || (hasMin && hasMax && maxPrice <= minPrice)) {
+    throw new AppError("Invalid price range", 400);
   }
 }
 

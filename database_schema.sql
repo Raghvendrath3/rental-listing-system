@@ -1,6 +1,14 @@
 -- ==============================================================================
 -- PostgreSQL Database Schema for Rental Hub
 -- ==============================================================================
+-- Create restricted application role
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'rental_app') THEN
+        CREATE ROLE rental_app;
+    END IF;
+END
+$$;
 
 -- Listing Status Enum
 CREATE TYPE listing_status AS ENUM ('draft', 'published', 'archived');
@@ -39,7 +47,10 @@ CREATE TABLE users (
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL CHECK (role IN ('user', 'owner', 'admin')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    full_name TEXT,
+    phone TEXT,
+    address TEXT
 );
 
 -- Enable RLS on users
@@ -54,6 +65,21 @@ FOR UPDATE USING (current_setting('app.user_role', true) = 'admin');
 
 CREATE POLICY users_self_read ON users
 FOR SELECT USING (id = (current_setting('app.user_id', true))::integer);
+
+CREATE POLICY users_auth_lookup ON users
+FOR SELECT USING (current_setting('app.user_role', true) = 'auth_lookup');
+
+CREATE POLICY users_registration_insert ON users
+FOR INSERT WITH CHECK (
+    current_setting('app.user_role', true) = 'registration'
+    AND role = 'user'
+);
+
+CREATE POLICY users_registration_read ON users
+FOR SELECT USING (
+    current_setting('app.user_role', true) = 'registration'
+    AND role = 'user'
+);
 
 -- Listings Table
 CREATE TABLE listings (
@@ -104,6 +130,9 @@ CREATE TABLE owner_requests (
     user_id INTEGER,
     status owner_request_status DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    property_type TEXT,
+    location TEXT,
+    reason TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -136,10 +165,43 @@ BEFORE INSERT OR UPDATE ON listings
 FOR EACH ROW
 EXECUTE FUNCTION force_listings_text_lowercase();
 
+-- Inquiries Table
+CREATE TABLE inquiries (
+    id SERIAL PRIMARY KEY,
+    tenant_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    listing_id INTEGER NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Enable RLS on inquiries
+ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
+
+-- Inquiries RLS Policies
+CREATE POLICY inquiries_admin_all ON inquiries
+USING (current_setting('app.user_role', true) = 'admin');
+
+CREATE POLICY inquiries_tenant_insert ON inquiries
+FOR INSERT WITH CHECK (tenant_id = (current_setting('app.user_id', true))::integer);
+
+CREATE POLICY inquiries_tenant_read ON inquiries
+FOR SELECT USING (tenant_id = (current_setting('app.user_id', true))::integer);
+
+CREATE POLICY inquiries_owner_read ON inquiries
+FOR SELECT USING (
+    EXISTS (
+        SELECT 1 FROM listings
+        WHERE listings.id = inquiries.listing_id
+          AND listings.owner_id = (current_setting('app.user_id', true))::integer
+    )
+);
+
 -- Grants
 GRANT SELECT, INSERT, DELETE, UPDATE ON listings TO rental_app;
 GRANT SELECT, USAGE ON listings_id_seq TO rental_app;
 GRANT SELECT, INSERT, DELETE, UPDATE ON owner_requests TO rental_app;
 GRANT SELECT, USAGE ON owner_requests_id_seq TO rental_app;
-GRANT SELECT, UPDATE ON users TO rental_app;
+GRANT SELECT, INSERT, UPDATE ON users TO rental_app;
 GRANT SELECT, USAGE ON users_id_seq TO rental_app;
+GRANT SELECT, INSERT, DELETE, UPDATE ON inquiries TO rental_app;
+GRANT SELECT, USAGE ON inquiries_id_seq TO rental_app;

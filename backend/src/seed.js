@@ -33,13 +33,7 @@ try {
 }
 
 // ── DB connection ──────────────────────────────────────────────────────────
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-});
+const { pool } = require('./config/db');
 
 // ── Salt rounds ────────────────────────────────────────────────────────────
 const SALT_ROUNDS = 12;
@@ -54,6 +48,9 @@ const USERS = [
     password: 'AdminPassword123!',
     role:     'admin',
     label:    'Admin',
+    full_name: 'System Admin',
+    phone:    '9876543210',
+    address:  'Admin Head Office, Bangalore'
   },
 
   // ── Owner ──
@@ -62,6 +59,9 @@ const USERS = [
     password: 'OwnerDemo@2026',
     role:     'owner',
     label:    'Owner',
+    full_name: 'Priya Sharma',
+    phone:    '9876543211',
+    address:  'Flat 101, HSR Layout, Bangalore'
   },
 
   // ── Regular user ──
@@ -70,6 +70,9 @@ const USERS = [
     password: 'UserDemo@2026',
     role:     'user',
     label:    'User',
+    full_name: 'Ravi Kumar',
+    phone:    '9876543212',
+    address:  'Flat 202, Koramangala, Bangalore'
   },
 ];
 
@@ -232,18 +235,21 @@ async function seed() {
         const res = await client.query(
           `UPDATE users
               SET password_hash = $1,
-                  role          = 'admin'
+                  role          = 'admin',
+                  full_name     = $3,
+                  phone         = $4,
+                  address       = $5
             WHERE email = $2
            RETURNING id, email, role`,
-          [u.hash, u.email]
+          [u.hash, u.email, u.full_name, u.phone, u.address]
         );
         if (res.rowCount === 0) {
           // Shouldn't happen, but insert as fallback
           const ins = await client.query(
-            `INSERT INTO users (email, password_hash, role)
-             VALUES ($1, $2, 'admin')
+            `INSERT INTO users (email, password_hash, role, full_name, phone, address)
+             VALUES ($1, $2, 'admin', $3, $4, $5)
              RETURNING id, email, role`,
-            [u.email, u.hash]
+            [u.email, u.hash, u.full_name, u.phone, u.address]
           );
           insertedUsers[u.role] = ins.rows[0];
           log(`Inserted admin: ${u.email}`);
@@ -253,10 +259,10 @@ async function seed() {
         }
       } else {
         const res = await client.query(
-          `INSERT INTO users (email, password_hash, role)
-           VALUES ($1, $2, $3)
+          `INSERT INTO users (email, password_hash, role, full_name, phone, address)
+           VALUES ($1, $2, $3, $4, $5, $6)
            RETURNING id, email, role`,
-          [u.email, u.hash, u.role]
+          [u.email, u.hash, u.role, u.full_name, u.phone, u.address]
         );
         insertedUsers[u.role] = res.rows[0];
         log(`Inserted ${u.role}: ${u.email} (id=${res.rows[0].id})`);
@@ -267,8 +273,8 @@ async function seed() {
     header('Creating owner_request for owner user');
     const ownerId = insertedUsers['owner'].id;
     await client.query(
-      `INSERT INTO owner_requests (user_id, status)
-       VALUES ($1, 'approved')`,
+      `INSERT INTO owner_requests (user_id, status, property_type, location, reason)
+       VALUES ($1, 'approved', 'apartment', 'indiranagar, bangalore', 'grow my business')`,
       [ownerId]
     );
     log(`Owner request inserted for user_id=${ownerId} (status=approved)`);
@@ -276,8 +282,8 @@ async function seed() {
     // Owner request for regular user (pending — to show something in admin panel)
     const userId = insertedUsers['user'].id;
     await client.query(
-      `INSERT INTO owner_requests (user_id, status)
-       VALUES ($1, 'pending')`,
+      `INSERT INTO owner_requests (user_id, status, property_type, location, reason)
+       VALUES ($1, 'pending', 'house', 'hsr layout, bangalore', 'earn rental income')`,
       [userId]
     );
     log(`Pending owner request inserted for user_id=${userId} (status=pending)`);

@@ -17,6 +17,7 @@ export interface Listing {
   status: ListingStatus;
   published_at: string | null;
   archived_at: string | null;
+  owner_name?: string;
 }
 
 export interface OwnerRequest {
@@ -25,6 +26,9 @@ export interface OwnerRequest {
   status: OwnerRequestStatus;
   created_at: string;
   email: string;
+  property_type?: string;
+  location?: string;
+  reason?: string;
 }
 
 export interface User {

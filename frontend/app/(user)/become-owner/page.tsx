@@ -7,10 +7,15 @@ import { useAuthStore, selectUserRole } from '@/stores/authStore';
 import api, { getErrorMessage } from '@/lib/api';
 import { formatRelativeTime } from '@/utils/format';
 import type { OwnerStatusResponse, ApiResponse } from '@/types';
+import { LISTING_TYPES, LISTING_TYPE_LABELS } from '@/constants';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Home, Clock, CheckCircle, XCircle, AlertTriangle, LogOut } from 'lucide-react';
 
@@ -19,8 +24,8 @@ async function fetchOwnerStatus() {
   return response.data.data;
 }
 
-async function submitBecomeOwner() {
-  const response = await api.post<ApiResponse<{ id: number; user_id: number; status: string; created_at: string }>>('/auth/become-owner');
+async function submitBecomeOwner(data: { property_type: string; location: string; reason: string }) {
+  const response = await api.post<ApiResponse<{ id: number; user_id: number; status: string; created_at: string }>>('/auth/become-owner', data);
   return response.data;
 }
 
@@ -30,6 +35,9 @@ export default function BecomeOwnerPage() {
   const userRole = useAuthStore(selectUserRole);
   const logout = useAuthStore((state) => state.logout);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [propertyType, setPropertyType] = useState<string>('');
+  const [location, setLocation] = useState<string>('');
+  const [reason, setReason] = useState<string>('');
 
   const { data: statusData, isLoading, isError, error } = useQuery({
     queryKey: ['owner-status'],
@@ -37,7 +45,7 @@ export default function BecomeOwnerPage() {
   });
 
   const submitMutation = useMutation({
-    mutationFn: submitBecomeOwner,
+    mutationFn: (data: { property_type: string; location: string; reason: string }) => submitBecomeOwner(data),
     onSuccess: () => {
       toast.success('Owner request submitted successfully!');
       queryClient.invalidateQueries({ queryKey: ['owner-status'] });
@@ -47,10 +55,28 @@ export default function BecomeOwnerPage() {
     },
   });
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!propertyType) {
+      toast.error('Property type is required');
+      return;
+    }
+    if (!location.trim()) {
+      toast.error('Location is required');
+      return;
+    }
+    if (!reason.trim()) {
+      toast.error('Reason is required');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      await submitMutation.mutateAsync();
+      await submitMutation.mutateAsync({
+        property_type: propertyType,
+        location: location.trim(),
+        reason: reason.trim(),
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -193,34 +219,68 @@ export default function BecomeOwnerPage() {
 
   // Default: no request yet
   return (
-    <div className="mx-auto max-w-md">
-      <Card>
+    <div className="mx-auto max-w-md animate-fade-up">
+      <Card className="bg-card border border-border/80 shadow-md rounded-xl hover-lift p-2">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-            <Home className="h-6 w-6 text-primary" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Home className="h-7 w-7" />
           </div>
-          <CardTitle>Become a Property Owner</CardTitle>
-          <CardDescription>
-            List your properties and reach potential tenants.
+          <CardTitle className="text-2xl font-bold tracking-tight">Become a Property Owner</CardTitle>
+          <CardDescription className="text-sm">
+            Apply to list your properties and manage tenant inquiries.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p>As a property owner, you can:</p>
-            <ul className="list-inside list-disc space-y-1">
-              <li>Create and manage rental listings</li>
-              <li>Publish properties for tenants to see</li>
-              <li>Track your listing performance</li>
-              <li>Archive listings when no longer available</li>
-            </ul>
-          </div>
-        </CardContent>
-        <CardFooter className="justify-center">
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? <Spinner size="sm" className="mr-2" /> : null}
-            {isSubmitting ? 'Submitting...' : 'Submit Owner Request'}
-          </Button>
-        </CardFooter>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="property_type" className="text-sm font-bold text-foreground/80">Property Type</Label>
+              <Select value={propertyType} onValueChange={setPropertyType}>
+                <SelectTrigger id="property_type" className="h-12 text-[16px] rounded-lg border-input px-3 bg-card focus:visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                  <SelectValue placeholder="Select property type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LISTING_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {LISTING_TYPE_LABELS[t]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground font-medium">Select the main type of property you want to list.</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="location" className="text-sm font-bold text-foreground/80">Location</Label>
+              <Input
+                id="location"
+                placeholder="e.g. Mumbai, Maharashtra"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="h-12 text-[16px] rounded-lg border-input px-3 bg-card focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              />
+              <p className="text-xs text-muted-foreground font-medium">Specify the city and area where your properties reside.</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="reason" className="text-sm font-bold text-foreground/80">Reason for Application</Label>
+              <Textarea
+                id="reason"
+                placeholder="Explain why you want to list properties on RentalHub..."
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                rows={4}
+                className="text-[16px] rounded-lg border-input px-3 py-2 bg-card focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 resize-none"
+              />
+              <p className="text-xs text-muted-foreground font-medium">Describe your listing plans (e.g. rent out a personal home, manage multiple PG rentals).</p>
+            </div>
+          </CardContent>
+          <CardFooter className="justify-center mt-2">
+            <Button type="submit" className="w-full h-12 text-sm font-bold bg-accent hover:bg-accent/90 text-accent-foreground rounded-lg shadow-sm border-0" disabled={isSubmitting}>
+              {isSubmitting ? <Spinner size="sm" className="mr-2" /> : null}
+              {isSubmitting ? 'Submitting request...' : 'Submit Application'}
+            </Button>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );

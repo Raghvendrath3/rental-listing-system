@@ -87,51 +87,59 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-up">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-foreground">Users</h1>
-        <p className="text-sm text-muted-foreground">
-          View all users on the platform
+      <div className="bg-card p-6 border border-border/70 rounded-xl shadow-sm">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">User Accounts</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Audit and manage all registered accounts on the platform
         </p>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 sm:grid-cols-4">
-        <Card>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="hover-lift border border-border/80 bg-card shadow-sm rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>Total Users</CardDescription>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardDescription className="text-sm font-bold text-muted-foreground">Total Accounts</CardDescription>
+            <div className="rounded-full p-2 bg-secondary text-primary">
+              <Users className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{users.length}</p>
+            <p className="text-4xl font-bold tracking-tight text-foreground">{users.length}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover-lift border border-border/80 bg-card shadow-sm rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>Regular Users</CardDescription>
-            <UserIcon className="h-4 w-4 text-muted-foreground" />
+            <CardDescription className="text-sm font-bold text-muted-foreground">Regular Tenants</CardDescription>
+            <div className="rounded-full p-2 bg-secondary text-primary">
+              <UserIcon className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{userCount}</p>
+            <p className="text-4xl font-bold tracking-tight text-foreground">{userCount}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover-lift border border-border/80 bg-card shadow-sm rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>Owners</CardDescription>
-            <Home className="h-4 w-4 text-blue-600" />
+            <CardDescription className="text-sm font-bold text-muted-foreground">Property Owners</CardDescription>
+            <div className="rounded-full p-2 bg-blue-50 text-blue-600">
+              <Home className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-blue-600">{ownerCount}</p>
+            <p className="text-4xl font-bold tracking-tight text-blue-600">{ownerCount}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover-lift border border-border/80 bg-card shadow-sm rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>Admins</CardDescription>
-            <Shield className="h-4 w-4 text-purple-600" />
+            <CardDescription className="text-sm font-bold text-muted-foreground">Administrators</CardDescription>
+            <div className="rounded-full p-2 bg-purple-50 text-purple-600">
+              <Shield className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-purple-600">{adminCount}</p>
+            <p className="text-4xl font-bold tracking-tight text-purple-600">{adminCount}</p>
           </CardContent>
         </Card>
       </div>
@@ -139,21 +147,21 @@ export default function AdminUsersPage() {
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by email..."
+            placeholder="Search accounts by email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
+            className="pl-11 h-12 text-[16px] rounded-lg border-input px-3 bg-card focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           />
         </div>
         <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as Role | 'all')}>
-          <SelectTrigger className="w-full sm:w-40">
+          <SelectTrigger className="w-full sm:w-48 h-12 text-[16px] rounded-lg border-input px-3 bg-card focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="user">User</SelectItem>
+            <SelectItem value="user">User / Tenant</SelectItem>
             <SelectItem value="owner">Owner</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
@@ -162,28 +170,35 @@ export default function AdminUsersPage() {
 
       {/* Users Table */}
       {filteredUsers.length === 0 ? (
-        <div className="rounded-lg border border-border bg-muted/50 p-8 text-center">
-          <Users className="mx-auto h-10 w-10 text-muted-foreground" />
-          <p className="mt-2 text-muted-foreground">No users found</p>
-        </div>
+        <Card className="p-12 text-center border border-border bg-card shadow-sm rounded-xl">
+          <CardContent className="space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-primary">
+              <Users className="h-7 w-7" />
+            </div>
+            <h3 className="text-xl font-bold">No users found</h3>
+            <p className="text-[16px] text-muted-foreground max-w-sm mx-auto">
+              We couldn't find any user accounts matching your criteria. Try adjusting your filters.
+            </p>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="rounded-lg border">
+        <div className="rounded-xl border border-border/80 bg-card shadow-sm overflow-hidden">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-secondary/35 border-b border-border/40">
               <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Joined</TableHead>
+                <TableHead className="font-bold text-foreground py-4">Account ID</TableHead>
+                <TableHead className="font-bold text-foreground py-4">Email Address</TableHead>
+                <TableHead className="font-bold text-foreground py-4">Role Badge</TableHead>
+                <TableHead className="font-bold text-foreground py-4">Joined Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">#{user.id}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{roleBadge(user.role)}</TableCell>
-                  <TableCell className="text-muted-foreground">
+                <TableRow key={user.id} className="hover:bg-secondary/15 transition-colors border-b border-border/30">
+                  <TableCell className="font-bold text-primary py-4">#{user.id}</TableCell>
+                  <TableCell className="font-medium text-foreground py-4 select-all">{user.email}</TableCell>
+                  <TableCell className="py-4">{roleBadge(user.role)}</TableCell>
+                  <TableCell className="text-muted-foreground font-medium py-4">
                     {formatDate(user.created_at)}
                   </TableCell>
                 </TableRow>
@@ -193,8 +208,8 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      <p className="text-center text-sm text-muted-foreground">
-        Showing {filteredUsers.length} of {users.length} users
+      <p className="text-center text-sm font-semibold text-muted-foreground bg-secondary/20 py-2.5 rounded-lg border border-border/30">
+        Showing {filteredUsers.length} of {users.length} registered accounts
       </p>
     </div>
   );

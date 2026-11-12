@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import api, { getErrorMessage } from '@/lib/api';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -14,7 +15,37 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
-import { Search, MapPin, Home, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, MapPin, Home, Filter, X, ChevronLeft, ChevronRight, Building2, Users, Sparkles, BedDouble } from 'lucide-react';
+
+const ListingImagePlaceholder = ({ type }: { type: string }) => {
+  const gradients = {
+    apartment: 'from-teal-50 to-teal-100/60',
+    house: 'from-amber-50 to-amber-100/60',
+    room: 'from-blue-50 to-blue-100/60',
+    pg: 'from-orange-50 to-orange-100/60',
+    studio: 'from-indigo-50 to-indigo-100/60',
+    villa: 'from-rose-50 to-rose-100/60',
+  };
+  
+  const icons = {
+    apartment: <Building2 className="h-10 w-10 text-primary/80" />,
+    house: <Home className="h-10 w-10 text-primary/80" />,
+    room: <BedDouble className="h-10 w-10 text-primary/80" />,
+    pg: <Users className="h-10 w-10 text-primary/80" />,
+    studio: <Sparkles className="h-10 w-10 text-primary/80" />,
+    villa: <Building2 className="h-10 w-10 text-primary/80" />,
+  };
+
+  const gradient = gradients[type as keyof typeof gradients] || 'from-slate-50 to-slate-100/60';
+  const icon = icons[type as keyof typeof icons] || <Home className="h-10 w-10 text-primary/80" />;
+
+  return (
+    <div className={`h-40 w-full bg-gradient-to-br ${gradient} flex items-center justify-center border-b border-border/50 relative overflow-hidden`}>
+      <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'radial-gradient(var(--foreground) 1px, transparent 0)', backgroundSize: '12px 12px' }} />
+      {icon}
+    </div>
+  );
+};
 
 async function fetchListings(filters: ListingFilters) {
   const params = new URLSearchParams();
@@ -196,33 +227,46 @@ export default function ListingsPage() {
       ) : (
         <>
           {/* Listings Grid */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {data?.data.map((listing) => (
-              <Card key={listing.id} className="flex flex-col">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="line-clamp-2 text-lg leading-tight">
-                      {capitalizeWords(listing.title)}
-                    </CardTitle>
-                    <Badge variant="secondary" className="shrink-0">
+              <Card key={listing.id} className="flex flex-col overflow-hidden bg-card border border-border/80 shadow-sm rounded-xl hover-lift group animate-fade-up">
+                {/* Visual Image Placeholder */}
+                <ListingImagePlaceholder type={listing.type} />
+                
+                {/* Details Content */}
+                <div className="px-5 pt-4 pb-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       {LISTING_TYPE_LABELS[listing.type]}
+                    </span>
+                    <Badge variant={listing.is_available ? 'default' : 'secondary'} className="text-[11px] font-medium px-2 py-0.5">
+                      {listing.is_available ? 'Available' : 'Rented'}
                     </Badge>
                   </div>
-                </CardHeader>
-                <CardContent className="flex-1 space-y-2">
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    <span>{capitalizeWords(listing.area)}, {capitalizeWords(listing.city)}</span>
+                  <h3 className="font-bold text-lg text-foreground mt-2 line-clamp-1 group-hover:text-primary transition-colors">
+                    {capitalizeWords(listing.title)}
+                  </h3>
+                </div>
+
+                <CardContent className="px-5 pb-4 space-y-2.5 flex-1">
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium">
+                    <MapPin className="h-4 w-4 shrink-0 text-primary" />
+                    <span className="truncate">{capitalizeWords(listing.area)}, {capitalizeWords(listing.city)}</span>
                   </div>
-                  <div className="text-2xl font-bold text-primary">
-                    {formatPrice(listing.price)}
-                    <span className="text-sm font-normal text-muted-foreground">/month</span>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-2xl font-extrabold text-primary">
+                      {formatPrice(listing.price)}
+                    </span>
+                    <span className="text-xs text-muted-foreground font-medium">/month</span>
                   </div>
                 </CardContent>
-                <CardFooter className="border-t pt-4">
-                  <Badge variant={listing.is_available ? 'default' : 'secondary'}>
-                    {listing.is_available ? 'Available' : 'Not Available'}
-                  </Badge>
+
+                <CardFooter className="px-5 pb-5 pt-0 border-t-0 flex items-center justify-between w-full">
+                  <Link href={`/listings/${listing.id}`} className="w-full">
+                    <Button size="default" variant="outline" className="w-full h-10 text-sm font-semibold rounded-lg hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-200">
+                      View Details
+                    </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             ))}

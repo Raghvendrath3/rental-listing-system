@@ -1,31 +1,27 @@
-const {pool} = require('../config/db');
-const AppErrors = require('../errors/AppErrors');
-
-
-async function ownerListingsRepository(ownerId){
-  try {
-    const query = `SELECT * FROM listings WHERE owner_id = $1`;
-
-    const result = await pool.query(query, [ownerId]); // Fix: ownerId must be wrapped in an array — pg driver requires params as an array
-    return result.rows; // Fix: return all rows, not just the first one
-    
-  } catch (error) {
-    throw new AppErrors("listings not found", 404); // Fix: was missing `throw new`, error was silently swallowed
-  }
-}
+const { query: dbQuery } = require('../config/db');
 
 
 // Function to get a listing by ID
-const findById = async (id, role) => {
-  let queryText = `SELECT * FROM listings WHERE id = $1`;
+const findById = async (id, role = 'user', actorId) => {
+  let queryText = `
+    SELECT l.*, u.full_name AS owner_name
+    FROM listings l
+    LEFT JOIN users u ON l.owner_id = u.id
+    WHERE l.id = $1
+  `;
   const params = [id]; 
 
   if (role === 'user') {
-    queryText += ` AND status = $2`;
+    queryText += ` AND l.status = $2`;
     params.push('published');
+  } else if (role === 'owner') {
+    queryText += ` AND l.owner_id = $2`;
+    params.push(actorId);
+  } else if (role !== 'admin') {
+    return null;
   }
 
-  const listing = await pool.query(queryText, params);
+  const listing = await dbQuery(queryText, params);
 
   if (listing.rows.length === 0) {
     return null;
@@ -43,11 +39,11 @@ async function addListing(newListing){
     city: newListing.city,
     area: newListing.area,
     price: newListing.price,
-    is_available: newListing.is_available || true,
+    is_available: newListing.is_available ?? true,
     owner_id: newListing.owner_id
   };
 
-  const addedListing = await pool.query(
+  const addedListing = await dbQuery(
     `INSERT INTO listings (title, type, city, area, price, is_available, owner_id)
      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
     [listingToAdd.title, listingToAdd.type,
@@ -59,9 +55,9 @@ async function addListing(newListing){
 
 // Function to update an existing listing
  async function updateListing(id, updatedFields){
-  const existingListing = await findById(id);
+  const existingListing = await findById(id, 'admin');
 
-  const updateListing = await pool.query(
+  const updateListing = await dbQuery(
     `UPDATE listings SET title = $1, type = $2, city = $3, area = $4,
      price = $5, is_available = $6 WHERE id = $7 RETURNING *`,
     [
@@ -79,7 +75,7 @@ async function addListing(newListing){
 
 // Function to delete a listing
 async function deleteListing(id){
- const result = await pool.query(
+ const result = await dbQuery(
     `DELETE FROM listings WHERE id = $1 RETURNING *`,
     [id]
   );
@@ -88,7 +84,7 @@ async function deleteListing(id){
 
 // function for publish listing
 async function publishListing(id) {
-  const result = await pool.query(
+  const result = await dbQuery(
     `UPDATE listings SET status = $1, published_at = NOW() WHERE id = $2 AND status = 'draft' RETURNING *`,
     ['published', id] 
   );
@@ -97,7 +93,7 @@ async function publishListing(id) {
 
 //function for archiving listing 
 async function archiveListing(id){
-    const result = await pool.query(
+    const result = await dbQuery(
     `UPDATE listings SET status = $1, archived_at = NOW() WHERE id = $2 AND status = 'published' RETURNING *`,
     ['archived', id] 
   );
@@ -106,7 +102,6 @@ async function archiveListing(id){
 }
 
 module.exports = {
-  ownerListingsRepository,
   findById, 
   addListing, 
   updateListing, 

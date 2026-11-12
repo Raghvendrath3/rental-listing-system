@@ -10,7 +10,7 @@ export const STORAGE_KEYS = {
 } as const;
 
 // Listing types enforced by DB CHECK constraint
-export const LISTING_TYPES: ListingType[] = [
+export const LISTING_TYPES = [
   'apartment',
   'house',
   'room',

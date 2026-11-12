@@ -39,6 +39,35 @@ function validateUser(newUser) {
   return true; // Both are valid
 }
 
+function validateRegistration(newUser) {
+  const { email, password, full_name, phone, address } = newUser;
+
+  // 1. Email/password check
+  validateUser({ email, password });
+
+  // 2. Validate Full Name
+  if (!full_name || typeof full_name !== 'string' || full_name.trim() === '') {
+    throw new AppErrors('Full name is required', 400);
+  }
+
+  // 3. Validate Phone (Indian Mobile Number Standard)
+  if (!phone || typeof phone !== 'string' || phone.trim() === '') {
+    throw new AppErrors('Phone number is required', 400);
+  }
+  const cleanPhone = phone.replace(/[\s-]/g, '');
+  const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
+  if (!phoneRegex.test(cleanPhone)) {
+    throw new AppErrors('Invalid Indian phone number format. Must be a 10-digit mobile number.', 400);
+  }
+
+  // 4. Validate Address
+  if (!address || typeof address !== 'string' || address.trim() === '') {
+    throw new AppErrors('Address is required', 400);
+  }
+
+  return true;
+}
+
 async function passwordHash(password){
   try {
     const saltRounds = 12;
@@ -49,7 +78,7 @@ async function passwordHash(password){
   }
 }
 async function postUsersService(newUser){
-  validateUser(newUser);
+  validateRegistration(newUser);
   newUser.password = await passwordHash(newUser.password);
   const createdUser = await postUsersRepository(newUser);
   return createdUser;

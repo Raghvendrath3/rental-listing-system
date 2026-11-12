@@ -14,7 +14,7 @@ let requestId;
 // These users are created fresh in beforeAll and deleted in afterAll,
 // so this suite runs correctly regardless of suite execution order.
 // -------------------------------------------------------------------
-const WORKFLOW_USER  = { email: 'wf_user_jest@example.com',  password: 'WfUser@123' };
+const WORKFLOW_USER  = { email: 'wf_user_jest@example.com',  password: 'WfUser@123', full_name: 'Workflow User', phone: '9876543210', address: '123 Workflow Lane' };
 const WORKFLOW_ADMIN = { email: 'wf_admin_jest@example.com', password: 'WfAdmin@123' };
 
 beforeAll(async () => {
@@ -88,7 +88,12 @@ describe('Full Workflow Test', () => {
   test('User requests owner role', async () => {
     const res = await request(app)
       .post('/api/v1/auth/become-owner')
-      .set('Authorization', `Bearer ${userToken}`);
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({
+        property_type: 'apartment',
+        location: 'Bhopal',
+        reason: 'Income expansion'
+      });
 
     expect(res.statusCode).toBe(201);
     expect(res.body.data).toBeDefined();

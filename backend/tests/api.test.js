@@ -17,7 +17,7 @@ let ownerRequestId;
 // -------------------------------------------------------------------
 // Test credentials — isolated from real data, cleaned up in afterAll
 // -------------------------------------------------------------------
-const TEST_USER  = { email: 'test_user_jest@example.com',  password: 'TestUser@123' };
+const TEST_USER  = { email: 'test_user_jest@example.com',  password: 'TestUser@123', full_name: 'Test User', phone: '9876543210', address: '123 Test Street, Bangalore' };
 const TEST_OWNER = { email: 'test_owner_jest@example.com', password: 'TestOwner@123' };
 const TEST_ADMIN = { email: 'test_admin_jest@example.com', password: 'TestAdmin@123' };
 
@@ -86,7 +86,7 @@ describe('Auth — signup', () => {
   test('POST /register creates a new user and returns id + role', async () => {
     const res = await request(app)
       .post('/api/v1/auth/register')
-      .send({ email: 'extra_jest@example.com', password: 'Extra@1234' });
+      .send({ email: 'extra_jest@example.com', password: 'Extra@1234', full_name: 'Extra User', phone: '9876543210', address: '123 Extra St' });
     expect(res.statusCode).toBe(201);
     expect(res.body.data.email).toBe('extra_jest@example.com');
     expect(res.body.data.role).toBe('user');
@@ -207,7 +207,12 @@ describe('Owner request flow', () => {
   test('user can submit a become-owner request', async () => {
     const res = await request(app)
       .post('/api/v1/auth/become-owner')
-      .set('Authorization', `Bearer ${userToken}`);
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({
+        property_type: 'apartment',
+        location: 'Koramangala, Bangalore',
+        reason: 'Business expansion'
+      });
     expect(res.statusCode).toBe(201);
     expect(res.body.data.status).toBe('pending');
     ownerRequestId = res.body.data.id;
@@ -216,7 +221,12 @@ describe('Owner request flow', () => {
   test('user cannot submit a second request while one is pending', async () => {
     const res = await request(app)
       .post('/api/v1/auth/become-owner')
-      .set('Authorization', `Bearer ${userToken}`);
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({
+        property_type: 'house',
+        location: 'Indiranagar, Bangalore',
+        reason: 'Income growth'
+      });
     expect(res.statusCode).toBe(409);
   });
 
@@ -277,7 +287,7 @@ describe('Listing CRUD', () => {
         price: 15000
       }});
     expect(res.statusCode).toBe(201);
-    expect(res.body.data.title).toBe('Jest Test Flat');
+    expect(res.body.data.title).toBe('jest test flat');
     expect(res.body.data.status).toBe('draft');
     listingId = res.body.data.id;
   });
@@ -301,19 +311,44 @@ describe('Listing CRUD', () => {
 
   test('owner can get their listings', async () => {
     const res = await request(app)
-      .get('/api/v1/owner/owner-listings')
+      .get('/api/v1/owner/owner-listings?city=bHoPaL&type=APARTMENT&priceMin=17000')
       .set('Authorization', `Bearer ${ownerToken}`);
     expect(res.statusCode).toBe(200);
+    expect(res.body.meta.totalItems).toBe(1);
+    expect(res.body.data[0].id).toBe(listingId);
   });
 
   test('get listing by id', async () => {
-    const res = await request(app).get(`/api/v1/owner/${listingId}`);
+    const res = await request(app)
+      .get(`/api/v1/owner/${listingId}`)
+      .set('Authorization', `Bearer ${ownerToken}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.data.id).toBe(listingId);
   });
 
+  test('listing detail requires owner authentication', async () => {
+    const res = await request(app).get(`/api/v1/owner/${listingId}`);
+    expect(res.statusCode).toBe(401);
+  });
+
+  test('users cannot access owner listing details', async () => {
+    const res = await request(app)
+      .get(`/api/v1/owner/${listingId}`)
+      .set('Authorization', `Bearer ${userToken}`);
+    expect(res.statusCode).toBe(403);
+  });
+
+  test('users cannot access draft listing details', async () => {
+    const res = await request(app)
+      .get(`/api/v1/listings/${listingId}`)
+      .set('Authorization', `Bearer ${userToken}`);
+    expect(res.statusCode).toBe(404);
+  });
+
   test('non-existent listing returns 404', async () => {
-    const res = await request(app).get('/api/v1/owner/999999');
+    const res = await request(app)
+      .get('/api/v1/owner/999999')
+      .set('Authorization', `Bearer ${ownerToken}`);
     expect(res.statusCode).toBe(404);
   });
 });
@@ -408,7 +443,9 @@ describe('Listing delete', () => {
   });
 
   test('deleted listing returns 404', async () => {
-    const res = await request(app).get(`/api/v1/owner/${listingId}`);
+    const res = await request(app)
+      .get(`/api/v1/owner/${listingId}`)
+      .set('Authorization', `Bearer ${ownerToken}`);
     expect(res.statusCode).toBe(404);
   });
 });

@@ -1,6 +1,6 @@
 const express = require('express');
 
-const {ownerListingsController, 
+const {getOwnerListings,
   getListingsById,
   postListings, 
   updateListing,
@@ -14,9 +14,9 @@ const requireRole = require('../middlewares/requireRole');
 
 const router = express.Router();
 
-router.get('/owner-listings', requireAuth, requireRole('owner', 'admin'),ownerListingsController);
+router.get('/owner-listings', requireAuth, requireRole('owner', 'admin'), getOwnerListings);
 
-router.get('/:id', getListingsById);
+router.get('/:id', requireAuth, requireRole('owner', 'admin'), getListingsById);
 
 router.post('/', requireAuth, requireRole('owner', 'admin'), postListings);
 

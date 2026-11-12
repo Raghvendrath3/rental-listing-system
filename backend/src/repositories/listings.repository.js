@@ -1,4 +1,4 @@
-const {pool} = require('../config/db');
+const { query: dbQuery } = require('../config/db');
 
 // Function to get all listings with filters and pagination
 async function findAll(filters, offset) {
@@ -20,15 +20,17 @@ async function findAll(filters, offset) {
 
   if (filters.city) {
     filtersArray.push(`city = $${values.length + 1}`);
-    values.push(filters.city);
+    values.push(String(filters.city).trim().toLowerCase());
   }
   if (filters.type) {
     filtersArray.push(`type = $${values.length + 1}`);
-    values.push(filters.type);
+    values.push(String(filters.type).trim().toLowerCase());
   }
-  if (filters.priceMin !== undefined && filters.priceMax !== undefined) {
+  if (filters.priceMin !== undefined) {
     filtersArray.push(`price >= $${values.length + 1}`);
     values.push(filters.priceMin);
+  }
+  if (filters.priceMax !== undefined) {
     filtersArray.push(`price <= $${values.length + 1}`);
     values.push(filters.priceMax);
   }
@@ -41,7 +43,7 @@ async function findAll(filters, offset) {
   const whereClause = filtersArray.length > 0 ? ` WHERE ` + filtersArray.join(' AND ') : '';
 
   // 3. Execute Count Query
-  const countResult = await pool.query(
+  const countResult = await dbQuery(
     `SELECT COUNT(*) FROM listings${whereClause}`, 
     values
   );
@@ -49,7 +51,7 @@ async function findAll(filters, offset) {
   // 4. Execute Main Query with Pagination
   const finalQuery = `SELECT * FROM listings${whereClause} LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
   
-  const listingResult = await pool.query(
+  const listingResult = await dbQuery(
     finalQuery, 
     [...values, filters.limit, offset]
   );

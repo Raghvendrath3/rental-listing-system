@@ -79,63 +79,63 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-up">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-foreground">Admin Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Platform overview and statistics
+      <div className="bg-card p-6 border border-border/70 rounded-xl shadow-sm">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Admin Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Platform overview, metrics, and administrative control panel
         </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {statCards.map((stat) => (
-          <Card key={stat.title}>
+          <Card key={stat.title} className="hover-lift border border-border/80 bg-card shadow-sm rounded-xl">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardDescription>{stat.title}</CardDescription>
-              <div className={`rounded-full p-2 ${stat.bgColor}`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+              <CardDescription className="text-sm font-bold text-muted-foreground">{stat.title}</CardDescription>
+              <div className={`rounded-full p-2.5 ${stat.bgColor}`}>
+                <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">{stat.value}</p>
+              <p className="text-4xl font-bold tracking-tight text-foreground">{stat.value}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
       {/* Quick Links */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ClipboardList className="h-5 w-5" />
+      <div className="grid gap-6 sm:grid-cols-2">
+        <Card className="hover-lift border border-border/80 bg-card shadow-md rounded-xl overflow-hidden flex flex-col justify-between">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2.5 text-xl font-bold text-foreground">
+              <ClipboardList className="h-5 w-5 text-primary" />
               Owner Requests
             </CardTitle>
-            <CardDescription>
-              Review and manage owner applications
+            <CardDescription className="text-sm text-muted-foreground mt-1">
+              Review, approve, or reject property owner applications from verified hosts.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button asChild>
+          <CardContent className="pt-0">
+            <Button asChild className="w-full h-12 text-sm font-bold bg-accent hover:bg-accent/90 text-accent-foreground rounded-lg shadow-sm border-0">
               <Link href="/admin/requests">Manage Requests</Link>
             </Button>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserCog className="h-5 w-5" />
+        <Card className="hover-lift border border-border/80 bg-card shadow-md rounded-xl overflow-hidden flex flex-col justify-between">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2.5 text-xl font-bold text-foreground">
+              <UserCog className="h-5 w-5 text-primary" />
               User Management
             </CardTitle>
-            <CardDescription>
-              View all users on the platform
+            <CardDescription className="text-sm text-muted-foreground mt-1">
+              View and audit all registered accounts, tenants, owners, and administrators.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button asChild>
+          <CardContent className="pt-0">
+            <Button asChild className="w-full h-12 text-sm font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-sm border-0">
               <Link href="/admin/users">View Users</Link>
             </Button>
           </CardContent>

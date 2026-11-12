@@ -6,12 +6,18 @@ async function postUsers(req, res, next) {
     const newUser = {
       email: req.body.email,
       password: req.body.password,
+      full_name: req.body.full_name,
+      phone: req.body.phone,
+      address: req.body.address,
     };
     const user = await postUsersService(newUser);
     const result = {
       email: user.email,
       id: user.id,
       role: user.role,
+      full_name: user.full_name,
+      phone: user.phone,
+      address: user.address,
       created_at: user.created_at
     };
     res.status(201).json({ status: 'success', data: result });
@@ -47,7 +53,12 @@ async function becomeOwner(req, res, next) {
       id: req.user.id,
       role: req.user.role
     };
-    const result = await submitOwnerRequestService(actor);
+    const details = {
+      property_type: req.body.property_type,
+      location: req.body.location,
+      reason: req.body.reason
+    };
+    const result = await submitOwnerRequestService(actor, details);
     res.status(201).json({
       status: 'success',
       message: 'Owner request submitted successfully.',
