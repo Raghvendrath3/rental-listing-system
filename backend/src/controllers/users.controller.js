@@ -9,7 +9,7 @@ function setSessionCookie(res, user) {
 }
 
 function getFrontendLoginUrl(errorCode) {
-  const loginUrl = new URL('/login', process.env.FRONTEND_URL || 'http://localhost:3000');
+  const loginUrl = new URL('/login', process.env.FRONTEND_URL');
   if (errorCode) loginUrl.searchParams.set('oauth_error', errorCode);
   return loginUrl.toString();
 }
@@ -122,7 +122,7 @@ async function googleCallback(req, res) {
   try {
     const user = await authenticateGoogle(req.query.code);
     setSessionCookie(res, user);
-    const listingsUrl = new URL('/listings', process.env.FRONTEND_URL || 'http://localhost:3000');
+    const listingsUrl = new URL('/listings', process.env.FRONTEND_URL');
     return res.redirect(listingsUrl.toString());
   } catch (error) {
     if (!error.isOperational) {
