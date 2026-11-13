@@ -15,6 +15,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
+import { GoogleOAuthButton } from '@/components/auth/GoogleOAuthButton';
+import { OAuthFeedback } from '@/components/auth/OAuthFeedback';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,8 +33,8 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: loginUser,
     onSuccess: (response) => {
-      const { token, data: userData } = response;
-      login(token, { id: userData.id, role: userData.role });
+      const { data: userData } = response;
+      login({ id: userData.id, role: userData.role });
       toast.success('Login successful!');
 
       // Redirect based on role
@@ -61,6 +63,9 @@ export default function LoginPage() {
         <CardTitle className="text-2xl font-bold tracking-tight">Welcome Back</CardTitle>
         <CardDescription className="text-sm">Sign in to your account to continue</CardDescription>
       </CardHeader>
+      <div className="px-6">
+        <OAuthFeedback context="login" />
+      </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-5">
           <div className="space-y-2">
@@ -103,6 +108,10 @@ export default function LoginPage() {
             {isLoading ? <Spinner size="sm" className="mr-2" /> : null}
             {isLoading ? 'Signing in...' : 'Sign In'}
           </Button>
+          <div className="w-full space-y-4">
+            <div className="text-center text-xs text-muted-foreground">or</div>
+            <GoogleOAuthButton />
+          </div>
           <p className="text-center text-sm text-muted-foreground font-medium">
             Don&apos;t have an account?{' '}
             <Link href="/register" className="text-primary hover:underline font-bold">

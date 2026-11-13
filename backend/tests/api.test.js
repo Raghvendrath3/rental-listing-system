@@ -121,28 +121,27 @@ describe('Auth — signup', () => {
 // 3. Auth — login
 // -------------------------------------------------------------------
 describe('Auth — login', () => {
-  test('user login returns a clean JWT object (not a pipe-delimited string)', async () => {
+  test('user login sets an HttpOnly session cookie', async () => {
     const res = await request(app)
       .post('/api/v1/auth/login')
       .send(TEST_USER);
     expect(res.statusCode).toBe(200);
-    expect(res.body.token).toBeDefined();
-    expect(res.body.token).not.toContain('|'); // Bug #11 regression check
+    expect(res.headers['set-cookie'][0]).toMatch(/HttpOnly/i);
     expect(res.body.data.id).toBeDefined();
     expect(res.body.data.role).toBe('user');
-    userToken = res.body.token;
+    userToken = res.headers['set-cookie'][0].split(';')[0];
   });
 
   test('owner login succeeds', async () => {
     const res = await request(app).post('/api/v1/auth/login').send(TEST_OWNER);
     expect(res.statusCode).toBe(200);
-    ownerToken = res.body.token;
+    ownerToken = res.headers['set-cookie'][0].split(';')[0];
   });
 
   test('admin login succeeds', async () => {
     const res = await request(app).post('/api/v1/auth/login').send(TEST_ADMIN);
     expect(res.statusCode).toBe(200);
-    adminToken = res.body.token;
+    adminToken = res.headers['set-cookie'][0].split(';')[0];
   });
 
   test('wrong password returns 401', async () => {
@@ -172,7 +171,7 @@ describe('Auth middleware', () => {
   test('invalid token returns 401 not 500', async () => {
     const res = await request(app)
       .get('/api/v1/owner/owner-listings')
-      .set('Authorization', 'Bearer thisisnotavalidtoken');
+      .set('Cookie', 'rental_session=not-a-valid-token');
     expect(res.statusCode).toBe(401); // Bug #10 regression check
     expect(res.statusCode).not.toBe(500);
   });
@@ -207,7 +206,7 @@ describe('Owner request flow', () => {
   test('user can submit a become-owner request', async () => {
     const res = await request(app)
       .post('/api/v1/auth/become-owner')
-      .set('Authorization', `Bearer ${userToken}`)
+      .set('Cookie', userToken)
       .send({
         property_type: 'apartment',
         location: 'Koramangala, Bangalore',
@@ -221,7 +220,7 @@ describe('Owner request flow', () => {
   test('user cannot submit a second request while one is pending', async () => {
     const res = await request(app)
       .post('/api/v1/auth/become-owner')
-      .set('Authorization', `Bearer ${userToken}`)
+      .set('Cookie', userToken)
       .send({
         property_type: 'house',
         location: 'Indiranagar, Bangalore',
@@ -233,7 +232,7 @@ describe('Owner request flow', () => {
   test('user can check their owner-status', async () => {
     const res = await request(app)
       .get('/api/v1/auth/owner-status')
-      .set('Authorization', `Bearer ${userToken}`);
+      .set('Cookie', userToken);
     expect(res.statusCode).toBe(200);
     expect(res.body.data.status).toBe('pending');
   });
@@ -241,14 +240,14 @@ describe('Owner request flow', () => {
   test('non-admin cannot see requests list', async () => {
     const res = await request(app)
       .get('/api/v1/admin/requests')
-      .set('Authorization', `Bearer ${userToken}`);
+      .set('Cookie', userToken);
     expect(res.statusCode).toBe(403);
   });
 
   test('admin can see the pending request', async () => {
     const res = await request(app)
       .get('/api/v1/admin/requests')
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminToken);
     expect(res.statusCode).toBe(200);
     const found = res.body.data.find(r => r.id === ownerRequestId);
     expect(found).toBeDefined();
@@ -258,7 +257,7 @@ describe('Owner request flow', () => {
   test('admin can approve the request', async () => {
     const res = await request(app)
       .patch(`/api/v1/admin/requests/${ownerRequestId}/approve`)
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminToken);
     expect(res.statusCode).toBe(200);
     expect(res.body.data.status).toBe('approved');
   });
@@ -266,7 +265,7 @@ describe('Owner request flow', () => {
   test('approving the same request again returns 400', async () => {
     const res = await request(app)
       .patch(`/api/v1/admin/requests/${ownerRequestId}/approve`)
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminToken);
     expect(res.statusCode).toBe(400);
   });
 });
@@ -278,7 +277,7 @@ describe('Listing CRUD', () => {
   test('owner can create a listing', async () => {
     const res = await request(app)
       .post('/api/v1/owner/')
-      .set('Authorization', `Bearer ${ownerToken}`)
+      .set('Cookie', ownerToken)
       .send({ payload: {
         title: 'Jest Test Flat',
         type: 'apartment',
@@ -295,7 +294,7 @@ describe('Listing CRUD', () => {
   test('user (non-owner) cannot create a listing', async () => {
     const res = await request(app)
       .post('/api/v1/owner/')
-      .set('Authorization', `Bearer ${userToken}`)
+      .set('Cookie', userToken)
       .send({ payload: { title: 'Sneaky', type: 'apartment', city: 'Bhopal', area: 'MP Nagar', price: 5000 }});
     expect(res.statusCode).toBe(403);
   });
@@ -303,7 +302,7 @@ describe('Listing CRUD', () => {
   test('owner can update their listing', async () => {
     const res = await request(app)
       .patch(`/api/v1/owner/${listingId}`)
-      .set('Authorization', `Bearer ${ownerToken}`)
+      .set('Cookie', ownerToken)
       .send({ price: 18000 });
     expect(res.statusCode).toBe(200);
     expect(Number(res.body.data.price)).toBe(18000); // PostgreSQL returns numeric columns as strings — cast to compare
@@ -312,7 +311,7 @@ describe('Listing CRUD', () => {
   test('owner can get their listings', async () => {
     const res = await request(app)
       .get('/api/v1/owner/owner-listings?city=bHoPaL&type=APARTMENT&priceMin=17000')
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Cookie', ownerToken);
     expect(res.statusCode).toBe(200);
     expect(res.body.meta.totalItems).toBe(1);
     expect(res.body.data[0].id).toBe(listingId);
@@ -321,7 +320,7 @@ describe('Listing CRUD', () => {
   test('get listing by id', async () => {
     const res = await request(app)
       .get(`/api/v1/owner/${listingId}`)
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Cookie', ownerToken);
     expect(res.statusCode).toBe(200);
     expect(res.body.data.id).toBe(listingId);
   });
@@ -334,21 +333,21 @@ describe('Listing CRUD', () => {
   test('users cannot access owner listing details', async () => {
     const res = await request(app)
       .get(`/api/v1/owner/${listingId}`)
-      .set('Authorization', `Bearer ${userToken}`);
+      .set('Cookie', userToken);
     expect(res.statusCode).toBe(403);
   });
 
   test('users cannot access draft listing details', async () => {
     const res = await request(app)
       .get(`/api/v1/listings/${listingId}`)
-      .set('Authorization', `Bearer ${userToken}`);
+      .set('Cookie', userToken);
     expect(res.statusCode).toBe(404);
   });
 
   test('non-existent listing returns 404', async () => {
     const res = await request(app)
       .get('/api/v1/owner/999999')
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Cookie', ownerToken);
     expect(res.statusCode).toBe(404);
   });
 });
@@ -360,7 +359,7 @@ describe('Listing lifecycle', () => {
   test('owner can publish a draft listing', async () => {
     const res = await request(app)
       .patch(`/api/v1/owner/${listingId}/publish`)
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Cookie', ownerToken);
     expect(res.statusCode).toBe(200);
     expect(res.body.data.status).toBe('published');
   });
@@ -368,7 +367,7 @@ describe('Listing lifecycle', () => {
   test('cannot publish an already-published listing', async () => {
     const res = await request(app)
       .patch(`/api/v1/owner/${listingId}/publish`)
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Cookie', ownerToken);
     expect(res.statusCode).toBe(409);
   });
 
@@ -382,7 +381,7 @@ describe('Listing lifecycle', () => {
   test('owner can archive a published listing', async () => {
     const res = await request(app)
       .patch(`/api/v1/owner/${listingId}/archive`)
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Cookie', ownerToken);
     expect(res.statusCode).toBe(200);
     expect(res.body.data.status).toBe('archived');
   });
@@ -397,7 +396,7 @@ describe('Listing lifecycle', () => {
   test('cannot archive an already-archived listing', async () => {
     const res = await request(app)
       .patch(`/api/v1/owner/${listingId}/archive`)
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Cookie', ownerToken);
     expect(res.statusCode).toBe(409);
   });
 });
@@ -409,7 +408,7 @@ describe('Admin routes', () => {
   test('admin can get platform stats', async () => {
     const res = await request(app)
       .get('/api/v1/admin/stats')
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminToken);
     expect(res.statusCode).toBe(200);
     expect(res.body.data.totalUsers).toBeDefined();
     expect(res.body.data.totalListings).toBeDefined();
@@ -418,7 +417,7 @@ describe('Admin routes', () => {
   test('admin can get all users', async () => {
     const res = await request(app)
       .get('/api/v1/admin/admin')
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminToken);
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body.data)).toBe(true);
   });
@@ -426,7 +425,7 @@ describe('Admin routes', () => {
   test('non-admin cannot access stats', async () => {
     const res = await request(app)
       .get('/api/v1/admin/stats')
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Cookie', ownerToken);
     expect(res.statusCode).toBe(403);
   });
 });
@@ -438,14 +437,14 @@ describe('Listing delete', () => {
   test('owner can delete their own listing', async () => {
     const res = await request(app)
       .delete(`/api/v1/owner/${listingId}`)
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Cookie', ownerToken);
     expect(res.statusCode).toBe(200);
   });
 
   test('deleted listing returns 404', async () => {
     const res = await request(app)
       .get(`/api/v1/owner/${listingId}`)
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Cookie', ownerToken);
     expect(res.statusCode).toBe(404);
   });
 });

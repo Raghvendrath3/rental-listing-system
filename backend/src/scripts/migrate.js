@@ -27,7 +27,37 @@ async function runMigration() {
       ALTER TABLE users 
       ADD COLUMN IF NOT EXISTS full_name TEXT,
       ADD COLUMN IF NOT EXISTS phone TEXT,
-      ADD COLUMN IF NOT EXISTS address TEXT;
+      ADD COLUMN IF NOT EXISTS address TEXT,
+      ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+      ADD COLUMN IF NOT EXISTS oauth_provider TEXT,
+      ADD COLUMN IF NOT EXISTS oauth_provider_id TEXT,
+      ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+      ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;
+      CREATE UNIQUE INDEX IF NOT EXISTS users_oauth_identity_unique
+      ON users (oauth_provider, oauth_provider_id)
+      WHERE oauth_provider IS NOT NULL AND oauth_provider_id IS NOT NULL;
+      DROP POLICY IF EXISTS users_oauth_insert ON users;
+      CREATE POLICY users_oauth_insert ON users
+      FOR INSERT WITH CHECK (
+        current_setting('app.user_role', true) = 'oauth_registration'
+        AND role = 'user' AND email_verified = TRUE
+        AND oauth_provider = 'google' AND oauth_provider_id IS NOT NULL
+      );
+      DROP POLICY IF EXISTS users_oauth_read ON users;
+      CREATE POLICY users_oauth_read ON users
+      FOR SELECT USING (current_setting('app.user_role', true) = 'oauth_registration');
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'oauth_identity_complete'
+        ) THEN
+          ALTER TABLE users ADD CONSTRAINT oauth_identity_complete CHECK (
+            (oauth_provider IS NULL AND oauth_provider_id IS NULL)
+            OR (oauth_provider IS NOT NULL AND oauth_provider_id IS NOT NULL)
+          );
+        END IF;
+      END
+      $$;
     `);
 
     // 2. Add fields to owner_requests table

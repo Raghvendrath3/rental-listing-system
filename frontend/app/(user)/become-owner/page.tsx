@@ -18,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Home, Clock, CheckCircle, XCircle, AlertTriangle, LogOut } from 'lucide-react';
+import { logoutUser } from '@/lib/services';
 
 async function fetchOwnerStatus() {
   const response = await api.get<OwnerStatusResponse>('/auth/owner-status');
@@ -82,9 +83,13 @@ export default function BecomeOwnerPage() {
     }
   };
 
-  const handleLogoutAndRelogin = () => {
-    logout();
+  const handleLogoutAndRelogin = async () => {
+    try {
+      await logoutUser();
+    } finally {
+      logout();
     router.push('/login');
+    }
   };
 
   // If user is already an owner, redirect to dashboard

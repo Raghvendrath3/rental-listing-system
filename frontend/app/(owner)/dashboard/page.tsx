@@ -31,12 +31,9 @@ async function fetchOwnerListings() {
 }
 
 async function fetchOwnerInquiries() {
-  const token = useAuthStore.getState().token;
   const response = await fetch('/api/owner/inquiries', {
     method: 'GET',
-    headers: {
-      'Authorization': token ? `Bearer ${token}` : '',
-    },
+    credentials: 'same-origin',
   });
   if (!response.ok) {
     throw new Error('Failed to fetch inquiries');

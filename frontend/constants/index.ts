@@ -3,12 +3,6 @@ import type { ListingType, ListingStatus, OwnerRequestStatus, Role } from '@/typ
 // API Configuration
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
-// LocalStorage keys
-export const STORAGE_KEYS = {
-  TOKEN: 'rental_token',
-  USER: 'rental_user',
-} as const;
-
 // Listing types enforced by DB CHECK constraint
 export const LISTING_TYPES = [
   'apartment',
@@ -66,7 +60,7 @@ export const PASSWORD_REQUIREMENTS = {
 export const TOKEN_EXPIRY_HOURS = 1;
 
 // Debounce timing for search
-export const SEARCH_DEBOUNCE_MS = 200;
+export const SEARCH_DEBOUNCE_MS = 250;
 
 // Toast auto-dismiss duration
 export const TOAST_DURATION_MS = 4000;

@@ -45,13 +45,12 @@ async function findAll(filters, offset) {
     ? 'id, title, type, city, area, price, is_available, owner_id, status, published_at, archived_at'
     : 'id, title, type, city, area, price, is_available';
 
-  const [countResult, listingResult] = await Promise.all([
-    dbQuery(`SELECT COUNT(*) FROM listings${whereClause}`, values),
-    dbQuery(
-      `SELECT ${columns} FROM listings${whereClause} LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
-      [...values, filters.limit, offset]
-    )
-  ]);
+  const countResult = await dbQuery(`SELECT COUNT(*) FROM listings${whereClause}`, values);
+  // Cursor pagination should replace OFFSET as the listing dataset scales.
+  const listingResult = await dbQuery(
+    `SELECT ${columns} FROM listings${whereClause} ORDER BY price ASC, id ASC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
+    [...values, filters.limit, offset]
+  );
 
   return {
     rows: listingResult.rows,

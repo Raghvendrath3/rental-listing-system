@@ -1,82 +1,29 @@
 import { create } from 'zustand';
-import { STORAGE_KEYS } from '@/constants';
 import type { AuthUser, Role } from '@/types';
 
 interface AuthState {
-  token: string | null;
   user: AuthUser | null;
   isHydrated: boolean;
-  
-  // Actions
-  login: (token: string, user: AuthUser) => void;
+  login: (user: AuthUser) => void;
   logout: () => void;
-  hydrate: () => void;
+  setUser: (user: AuthUser | null) => void;
+  setHydrated: () => void;
   updateRole: (role: Role) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  token: null,
   user: null,
   isHydrated: false,
-  
-  login: (token: string, user: AuthUser) => {
-    // Store in localStorage & Cookie
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEYS.TOKEN, token);
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-      document.cookie = `rental_token=${token}; path=/; max-age=3600; SameSite=Lax`;
-    }
-    set({ token, user });
-  },
-  
-  logout: () => {
-    // Clear localStorage & Cookie
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(STORAGE_KEYS.TOKEN);
-      localStorage.removeItem(STORAGE_KEYS.USER);
-      document.cookie = 'rental_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
-    }
-    set({ token: null, user: null });
-  },
-  
-  hydrate: () => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-      const userStr = localStorage.getItem(STORAGE_KEYS.USER);
-      
-      if (token && userStr) {
-        try {
-          const user = JSON.parse(userStr) as AuthUser;
-          set({ token, user, isHydrated: true });
-        } catch {
-          // Invalid stored user, clear everything
-          localStorage.removeItem(STORAGE_KEYS.TOKEN);
-          localStorage.removeItem(STORAGE_KEYS.USER);
-          set({ token: null, user: null, isHydrated: true });
-        }
-      } else {
-        set({ isHydrated: true });
-      }
-    } else {
-      set({ isHydrated: true });
-    }
-  },
-  
-  updateRole: (role: Role) => {
-    set((state) => {
-      if (state.user) {
-        const updatedUser = { ...state.user, role };
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
-        }
-        return { user: updatedUser };
-      }
-      return state;
-    });
-  },
+
+  login: (user) => set({ user, isHydrated: true }),
+  logout: () => set({ user: null, isHydrated: true }),
+  setUser: (user) => set({ user }),
+  setHydrated: () => set({ isHydrated: true }),
+  updateRole: (role) => set((state) => ({
+    user: state.user ? { ...state.user, role } : null,
+  })),
 }));
 
-// Selectors for common access patterns
-export const selectIsAuthenticated = (state: AuthState) => !!state.token && !!state.user;
+export const selectIsAuthenticated = (state: AuthState) => !!state.user;
 export const selectUserRole = (state: AuthState) => state.user?.role ?? null;
 export const selectUserId = (state: AuthState) => state.user?.id ?? null;

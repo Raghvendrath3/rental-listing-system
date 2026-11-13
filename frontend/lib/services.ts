@@ -25,6 +25,10 @@ export async function loginUser(data: { email: string; password: string }) {
   return response.data;
 }
 
+export async function logoutUser() {
+  await api.post('/auth/logout');
+}
+
 export async function registerUser(data: { email: string; password: string }) {
   await api.post('/auth/register', data);
   // Immediately login after registration

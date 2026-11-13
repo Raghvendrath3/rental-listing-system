@@ -72,7 +72,6 @@ export interface PaginatedResponse<T> {
 
 export interface LoginResponse {
   status: string;
-  token: string;
   data: {
     id: number;
     role: Role;

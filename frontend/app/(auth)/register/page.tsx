@@ -8,13 +8,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, type RegisterFormData } from '@/schemas/auth.schema';
 import { useAuthStore } from '@/stores/authStore';
 import api, { getErrorMessage } from '@/lib/api';
-import type { LoginResponse } from '@/types';
+import type { AuthUser } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
+import { GoogleOAuthButton } from '@/components/auth/GoogleOAuthButton';
+import { OAuthFeedback } from '@/components/auth/OAuthFeedback';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -33,13 +35,8 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       // Register the user
-      await api.post('/auth/register', data);
-      
-      // Immediately login with the same credentials
-      const loginResponse = await api.post<LoginResponse>('/auth/login', data);
-      const { token, data: userData } = loginResponse.data;
-
-      login(token, { id: userData.id, role: userData.role });
+      const response = await api.post<{ data: AuthUser }>('/auth/register', data);
+      login({ id: response.data.data.id, role: response.data.data.role });
       toast.success('Account created successfully!');
       router.push('/listings');
     } catch (error) {
@@ -55,6 +52,9 @@ export default function RegisterPage() {
         <CardTitle className="text-2xl font-bold tracking-tight">Create Account</CardTitle>
         <CardDescription className="text-sm">Enter your details to register</CardDescription>
       </CardHeader>
+      <div className="px-6">
+        <OAuthFeedback context="register" />
+      </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
@@ -138,6 +138,10 @@ export default function RegisterPage() {
             {isLoading ? <Spinner size="sm" className="mr-2" /> : null}
             {isLoading ? 'Creating account...' : 'Create Account'}
           </Button>
+          <div className="w-full space-y-4">
+            <div className="text-center text-xs text-muted-foreground">or</div>
+            <GoogleOAuthButton />
+          </div>
           <p className="text-center text-sm text-muted-foreground font-medium">
             Already have an account?{' '}
             <Link href="/login" className="text-primary hover:underline font-bold">

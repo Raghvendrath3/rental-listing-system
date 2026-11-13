@@ -45,12 +45,20 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
+    password_hash TEXT,
     role TEXT NOT NULL CHECK (role IN ('user', 'owner', 'admin')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     full_name TEXT,
     phone TEXT,
-    address TEXT
+    address TEXT,
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    oauth_provider TEXT,
+    oauth_provider_id TEXT,
+    avatar_url TEXT,
+    CONSTRAINT oauth_identity_complete CHECK (
+        (oauth_provider IS NULL AND oauth_provider_id IS NULL)
+        OR (oauth_provider IS NOT NULL AND oauth_provider_id IS NOT NULL)
+    )
 );
 
 -- Enable RLS on users
@@ -80,6 +88,22 @@ FOR SELECT USING (
     current_setting('app.user_role', true) = 'registration'
     AND role = 'user'
 );
+
+CREATE POLICY users_oauth_insert ON users
+FOR INSERT WITH CHECK (
+    current_setting('app.user_role', true) = 'oauth_registration'
+    AND role = 'user'
+    AND email_verified = TRUE
+    AND oauth_provider = 'google'
+    AND oauth_provider_id IS NOT NULL
+);
+
+CREATE POLICY users_oauth_read ON users
+FOR SELECT USING (current_setting('app.user_role', true) = 'oauth_registration');
+
+CREATE UNIQUE INDEX users_oauth_identity_unique
+ON users (oauth_provider, oauth_provider_id)
+WHERE oauth_provider IS NOT NULL AND oauth_provider_id IS NOT NULL;
 
 -- Listings Table
 CREATE TABLE listings (
@@ -154,7 +178,9 @@ CREATE INDEX idx_owner_requests_status ON owner_requests USING btree (status);
 CREATE UNIQUE INDEX unique_pending_owner_request ON owner_requests(user_id)
 WHERE status = 'pending';
 
-CREATE INDEX idx_listings_status_city_type ON listings (status, city, type);
+CREATE INDEX idx_listings_published_city_type_price_id
+ON listings (city, type, price, id)
+WHERE status = 'published';
 CREATE INDEX idx_listings_owner_city_type ON listings (owner_id, city, type);
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm;

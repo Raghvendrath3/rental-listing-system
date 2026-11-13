@@ -79,16 +79,15 @@ describe('Full Workflow Test', () => {
       .send(WORKFLOW_USER);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.token).toBeDefined();
-    expect(res.body.token).not.toContain('|'); // not a pipe-string
-    userToken = res.body.token;
+    expect(res.headers['set-cookie'][0]).toMatch(/HttpOnly/i);
+    userToken = res.headers['set-cookie'][0].split(';')[0];
   });
 
   // 2. Request to become owner
   test('User requests owner role', async () => {
     const res = await request(app)
       .post('/api/v1/auth/become-owner')
-      .set('Authorization', `Bearer ${userToken}`)
+      .set('Cookie', userToken)
       .send({
         property_type: 'apartment',
         location: 'Bhopal',
@@ -107,15 +106,15 @@ describe('Full Workflow Test', () => {
       .send(WORKFLOW_ADMIN);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.token).toBeDefined();
-    adminToken = res.body.token;
+    expect(res.headers['set-cookie'][0]).toMatch(/HttpOnly/i);
+    adminToken = res.headers['set-cookie'][0].split(';')[0];
   });
 
   // 4. Admin approves request
   test('Admin approves owner request', async () => {
     const res = await request(app)
       .patch(`/api/v1/admin/requests/${requestId}/approve`)
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminToken);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.status).toBe('approved');
@@ -125,7 +124,7 @@ describe('Full Workflow Test', () => {
   test('User owner-status shows approved', async () => {
     const res = await request(app)
       .get('/api/v1/auth/owner-status')
-      .set('Authorization', `Bearer ${userToken}`);
+      .set('Cookie', userToken);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.status).toBe('approved');
@@ -141,14 +140,14 @@ describe('Full Workflow Test', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.role).toBe('owner');
-    userToken = res.body.token; // swap old token for new owner token
+    userToken = res.headers['set-cookie'][0].split(';')[0];
   });
 
   // 7. Create listing as owner
   test('Owner creates listing', async () => {
     const res = await request(app)
       .post('/api/v1/owner/')            // trailing slash required to avoid redirect
-      .set('Authorization', `Bearer ${userToken}`)
+      .set('Cookie', userToken)
       .send({
         payload: {                        // controller reads from req.body.payload
           title: 'Workflow Test Listing',
@@ -168,7 +167,7 @@ describe('Full Workflow Test', () => {
   test('Owner publishes listing', async () => {
     const res = await request(app)
       .patch(`/api/v1/owner/${listingId}/publish`)
-      .set('Authorization', `Bearer ${userToken}`); // carries owner role
+      .set('Cookie', userToken); // carries owner role
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.status).toBe('published');

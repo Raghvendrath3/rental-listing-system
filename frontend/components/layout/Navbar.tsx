@@ -6,6 +6,7 @@ import { useAuthStore, selectIsAuthenticated, selectUserRole } from '@/stores/au
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Home, LayoutDashboard, Users, Shield, LogOut, LogIn, UserPlus } from 'lucide-react';
+import { logoutUser } from '@/lib/services';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -13,9 +14,13 @@ export function Navbar() {
   const userRole = useAuthStore(selectUserRole);
   const logout = useAuthStore((state) => state.logout);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+    } finally {
     logout();
     window.location.href = '/login';
+    }
   };
 
   // Navigation items based on role

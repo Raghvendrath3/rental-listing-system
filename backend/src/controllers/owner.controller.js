@@ -8,9 +8,17 @@ const {
   publishListingService,
   archiveListingService
 } = require('../services/owner.services');
+const { invalidatePublicListings } = require('../services/publicListingsCache');
+
+function setPrivateListingHeaders(res) {
+  res.set('Cache-Control', 'private, no-store');
+  res.vary('Authorization');
+  res.vary('Cookie');
+}
 
 // Getting owner listings
 const getOwnerListings = async (req, res, next) => {
+  setPrivateListingHeaders(res);
   try {
     const filters = {
       q: req.query.q,
@@ -41,6 +49,7 @@ const getOwnerListings = async (req, res, next) => {
 
 // Getting a listing by ID
 const getListingsById = async (req, res, next) => {
+  setPrivateListingHeaders(res);
   try {
     const listingId = Number(req.params.id);
     const actor = {
@@ -68,6 +77,7 @@ const getListingsById = async (req, res, next) => {
 
 // Creating a new listing
 const postListings = async (req, res, next) => {
+  setPrivateListingHeaders(res);
   try {
     const actor = {
       id: req.user.id,
@@ -84,6 +94,7 @@ const postListings = async (req, res, next) => {
       owner_id: actor.id
     };
     const listings = await postListingService(actor, newListing);
+    invalidatePublicListings();
     res.status(201).json({
       status: 'success',
       data: listings
@@ -95,6 +106,7 @@ const postListings = async (req, res, next) => {
 
 // Updating an existing listing
 const updateListing = async (req, res, next) => {
+  setPrivateListingHeaders(res);
   try {
     const actor = {
       id: req.user.id,
@@ -110,6 +122,7 @@ const updateListing = async (req, res, next) => {
       is_available: req.body.is_available
     }
     const updatedListing = await updateListingService(listingId, updatedFields, actor);
+    invalidatePublicListings();
 
     res.status(200).json({
       status: 'success',
@@ -122,6 +135,7 @@ const updateListing = async (req, res, next) => {
 
 // Deleting a listing
 const deleteListing = async (req, res, next) => {
+  setPrivateListingHeaders(res);
   try {
     const actor = {
       id: req.user.id,
@@ -129,6 +143,7 @@ const deleteListing = async (req, res, next) => {
     }
     const listingId = Number(req.params.id);
     const deletedListing = await deleteListingService(listingId, actor);
+    invalidatePublicListings();
 
     res.status(200).json({
       status: 'success',
@@ -142,6 +157,7 @@ const deleteListing = async (req, res, next) => {
 // publish listing controller
 
 async function publishListing(req, res, next){
+  setPrivateListingHeaders(res);
   try {
     const actor = {
       id: req.user.id,
@@ -149,6 +165,7 @@ async function publishListing(req, res, next){
     }
     const listingId = Number(req.params.id);
     const publishListing = await publishListingService(listingId, actor);
+    invalidatePublicListings();
 
     res.status(200).json({
       status: 'success',
@@ -162,6 +179,7 @@ async function publishListing(req, res, next){
 //archieve listing controller
 
 async function archiveListing(req, res, next){
+  setPrivateListingHeaders(res);
   try {
     const actor = {
       id: req.user.id,
@@ -169,6 +187,7 @@ async function archiveListing(req, res, next){
     }
     const listingId = Number(req.params.id);
     const archiveListing = await archiveListingService(listingId, actor);
+    invalidatePublicListings();
 
     res.status(200).json({
       status: 'success',

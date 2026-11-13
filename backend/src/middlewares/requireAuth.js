@@ -1,18 +1,18 @@
 const jwt = require('jsonwebtoken');
 const AppError = require('../errors/AppErrors'); // Fix: needed to wrap JWT errors with a proper statusCode
 const { dbContext } = require('../config/db');
+const { SESSION_COOKIE } = require('../config/authCookies');
 
 module.exports = function requireAuth(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader) {
-    return res.status(401).json({ message: 'Unauthorized: No token provided.' });
-  }
-  const [bearer, token] = authHeader.split(' ');
-  if (!token || bearer !== 'Bearer') {
-    return res.status(401).json({ message: 'Unauthorized: Invalid token format.' });
-  }
   try {
+    const token = req.cookies && req.cookies[SESSION_COOKIE];
+    if (!token) {
+      return res.status(401).json({ message: 'Unauthorized: No session cookie.' });
+    }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!Number.isInteger(decoded.id) || !['user', 'owner', 'admin'].includes(decoded.role)) {
+      throw new Error('Invalid session claims');
+    }
     req.user = decoded;
     const context = dbContext.getStore();
     if (context) {

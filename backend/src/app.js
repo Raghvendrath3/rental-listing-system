@@ -3,7 +3,9 @@ const healthRoutes = require("./routes/healths.routes");
 const testRoutes = require('./routes/tests.routes');
 
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const initializeDbContext = require('./middlewares/dbContext');
+const csrfProtection = require('./middlewares/csrfProtection');
 
 const app = express();
 
@@ -19,17 +21,20 @@ const allowedOrigins = new Set(
     .map(origin => origin && origin.trim())
     .filter(Boolean)
 );
+app.locals.allowedOrigins = allowedOrigins;
 const corsOptions = {
   origin(origin, callback) {
     callback(null, !origin || allowedOrigins.has(origin));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
+app.use(cookieParser());
 app.use(initializeDbContext);
+app.use('/api/v1', csrfProtection);
 
 // routes
 app.use("/api/v1/health", healthRoutes);

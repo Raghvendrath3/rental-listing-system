@@ -75,13 +75,13 @@ export default function ListingDetailPage() {
   // Submit inquiry mutation
   const submitInquiryMutation = useMutation({
     mutationFn: async (messageText: string) => {
-      const token = useAuthStore.getState().token;
       const res = await fetch('/api/inquiries', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : '',
+          'X-Requested-With': 'XMLHttpRequest',
         },
+        credentials: 'same-origin',
         body: JSON.stringify({
           listing_id: Number(listingId),
           message: messageText,

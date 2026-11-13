@@ -15,6 +15,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
           queries: {
             // Default stale time for queries
             staleTime: 30 * 1000, // 30 seconds
+            gcTime: 5 * 60 * 1000,
             // Retry failed queries once
             retry: 1,
             // Don't refetch on window focus for this app

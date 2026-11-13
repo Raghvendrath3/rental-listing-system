@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import api, { getErrorMessage } from '@/lib/api';
 import { useDebounce } from '@/hooks/use-debounce';
 import { LISTING_TYPES, LISTING_TYPE_LABELS, DEFAULT_PAGE, DEFAULT_LIMIT, SEARCH_DEBOUNCE_MS } from '@/constants';
@@ -46,17 +46,19 @@ const ListingImagePlaceholder = ({ type }: { type: string }) => {
   );
 };
 
-async function fetchListings(filters: ListingFilters) {
-  const params = new URLSearchParams();
-  if (filters.q) params.append('q', filters.q);
-  if (filters.city) params.append('city', filters.city);
-  if (filters.type) params.append('type', filters.type);
-  if (filters.priceMin !== undefined) params.append('priceMin', String(filters.priceMin));
-  if (filters.priceMax !== undefined) params.append('priceMax', String(filters.priceMax));
-  params.append('page', String(filters.page || DEFAULT_PAGE));
-  params.append('limit', String(filters.limit || DEFAULT_LIMIT));
-
-  const response = await api.get<PaginatedResponse<PublicListing>>(`/listings?${params.toString()}`);
+async function fetchListings(filters: ListingFilters, signal?: AbortSignal) {
+  const response = await api.get<PaginatedResponse<PublicListing>>('/listings', {
+    params: {
+      q: filters.q,
+      city: filters.city,
+      type: filters.type,
+      priceMin: filters.priceMin,
+      priceMax: filters.priceMax,
+      page: filters.page || DEFAULT_PAGE,
+      limit: filters.limit || DEFAULT_LIMIT,
+    },
+    signal,
+  });
   return response.data;
 }
 
@@ -93,6 +95,7 @@ export default function ListingsView({
 
   const debouncedSearch = useDebounce(search, SEARCH_DEBOUNCE_MS);
   const debouncedCity = useDebounce(city, SEARCH_DEBOUNCE_MS);
+  const queryClient = useQueryClient();
 
   // Reset page when filters change
   useEffect(() => {
@@ -109,12 +112,44 @@ export default function ListingsView({
     limit: DEFAULT_LIMIT,
   };
 
-  const { data, isLoading, isError, error } = useQuery({
+  const isDefaultQuery = !debouncedSearch && !debouncedCity && type === 'all'
+    && !priceMin && !priceMax && page === DEFAULT_PAGE;
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isError,
+    isPlaceholderData,
+    error,
+  } = useQuery({
     queryKey: ['listings', filters],
-    queryFn: () => fetchListings(filters),
-    initialData: initialData ?? undefined,
+    queryFn: ({ signal }) => fetchListings(filters, signal),
+    initialData: isDefaultQuery ? initialData ?? undefined : undefined,
     placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
+
+  useEffect(() => {
+    if (!data || isPlaceholderData || page >= data.meta.totalPages) return;
+
+    const nextPageFilters = { ...filters, page: page + 1 };
+    void queryClient.prefetchQuery({
+      queryKey: ['listings', nextPageFilters],
+      queryFn: ({ signal }) => fetchListings(nextPageFilters, signal),
+      staleTime: 30 * 1000,
+    });
+  }, [
+    data,
+    debouncedSearch,
+    debouncedCity,
+    isPlaceholderData,
+    page,
+    priceMin,
+    priceMax,
+    queryClient,
+    type,
+  ]);
 
   const hasActiveFilters = debouncedSearch || debouncedCity || type !== 'all' || priceMin || priceMax;
 
@@ -223,15 +258,25 @@ export default function ListingsView({
       </div>
 
       {/* Results */}
-      {isLoading ? (
-        <ListingCardsSkeleton />
-      ) : isError ? (
+      {isError && data && (
+        <p role="status" className="text-sm text-destructive">
+          Could not refresh listings. Showing the previous results.
+        </p>
+      )}
+      {isFetching && data && !isError && (
+        <p role="status" className="text-sm text-muted-foreground">
+          Updating listings...
+        </p>
+      )}
+      {!data && isError ? (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-center">
           <p className="text-destructive">{getErrorMessage(error)}</p>
           <Button variant="outline" size="sm" className="mt-4" onClick={() => window.location.reload()}>
             Try again
           </Button>
         </div>
+      ) : !data && isLoading ? (
+        <ListingCardsSkeleton />
       ) : data?.data.length === 0 ? (
         <div className="rounded-lg border border-border bg-muted/50 p-12 text-center">
           <Home className="mx-auto h-12 w-12 text-muted-foreground" />

@@ -1,29 +1,17 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { API_BASE_URL, STORAGE_KEYS } from '@/constants';
+import { API_BASE_URL } from '@/constants';
 import type { ErrorResponse } from '@/types';
+import { useAuthStore } from '@/stores/authStore';
 
 // Create axios instance with base configuration
 export const api = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
   },
 });
-
-// Request interceptor - adds auth token to every request
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    // Only run on client side
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 // Response interceptor - handles 401 globally
 api.interceptors.response.use(
@@ -32,12 +20,15 @@ api.interceptors.response.use(
     // Handle 401 globally - clear auth and redirect to login
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem(STORAGE_KEYS.TOKEN);
-        localStorage.removeItem(STORAGE_KEYS.USER);
+        useAuthStore.getState().logout();
         
-        // Only redirect if not already on login/register pages
+        // Avoid redirecting on auth initialization or invalid login credentials.
         const currentPath = window.location.pathname;
-        if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+        const requestUrl = error.config?.url || '';
+        if (!requestUrl.includes('/auth/me')
+          && !requestUrl.includes('/auth/login')
+          && !currentPath.includes('/login')
+          && !currentPath.includes('/register')) {
           window.location.href = '/login';
         }
       }

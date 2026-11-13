@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { API_BASE_URL } from '@/constants';
 
 export async function POST(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
+  const cookie = request.headers.get('cookie') || '';
   
   try {
     const body = await request.json();
@@ -10,7 +10,8 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authHeader || '',
+        Cookie: cookie,
+        'X-Requested-With': 'XMLHttpRequest',
       },
       body: JSON.stringify(body),
     });
@@ -26,13 +27,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
+  const cookie = request.headers.get('cookie') || '';
 
   try {
     const res = await fetch(`${API_BASE_URL}/inquiries`, {
       method: 'GET',
       headers: {
-        'Authorization': authHeader || '',
+        Cookie: cookie,
       },
     });
 

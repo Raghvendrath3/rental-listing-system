@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
 import { Clock, CheckCircle, XCircle, AlertTriangle, Home, LogOut, UserPlus } from 'lucide-react';
+import { logoutUser } from '@/lib/services';
 
 async function fetchOwnerStatus() {
   const response = await api.get<OwnerStatusResponse>('/auth/owner-status');
@@ -28,9 +29,13 @@ export default function OwnerStatusPage() {
     queryFn: fetchOwnerStatus,
   });
 
-  const handleLogoutAndRelogin = () => {
-    logout();
+  const handleLogoutAndRelogin = async () => {
+    try {
+      await logoutUser();
+    } finally {
+      logout();
     router.push('/login');
+    }
   };
 
   if (isLoading) {
