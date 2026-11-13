@@ -1,4 +1,6 @@
 import { RedirectIfAuthenticated } from '@/components/layout';
+import { QueryProvider, AuthProvider } from '@/components/providers';
+import { Toaster } from '@/components/ui/sonner';
 
 export default function AuthLayout({
   children,
@@ -6,10 +8,15 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <RedirectIfAuthenticated>
-      <main className="flex min-h-screen items-center justify-center px-4">
-        {children}
-      </main>
-    </RedirectIfAuthenticated>
+    <QueryProvider>
+      <AuthProvider>
+        <RedirectIfAuthenticated>
+          <main className="flex min-h-screen items-center justify-center px-4">
+            {children}
+          </main>
+          <Toaster position="top-right" />
+        </RedirectIfAuthenticated>
+      </AuthProvider>
+    </QueryProvider>
   );
 }

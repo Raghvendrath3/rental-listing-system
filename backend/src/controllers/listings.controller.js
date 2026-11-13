@@ -16,6 +16,7 @@ const getListings = async (req, res, next) => {
     'Cache-Control',
     isAnonymous ? 'public, s-maxage=30, stale-while-revalidate=120' : 'private, no-store'
   );
+  res.set('X-Cache', isAnonymous ? 'MISS' : 'BYPASS');
 
   try {
     const filters = {
@@ -30,7 +31,10 @@ const getListings = async (req, res, next) => {
     const cacheKey = createCacheKey(filters);
     if (isAnonymous) {
       const cachedResponse = getPublicListings(cacheKey);
-      if (cachedResponse) return res.status(200).json(cachedResponse);
+      if (cachedResponse) {
+        res.set('X-Cache', 'HIT');
+        return res.status(200).json(cachedResponse);
+      }
     }
 
     const listings = await listingService(filters);

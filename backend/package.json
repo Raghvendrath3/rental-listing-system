@@ -7,6 +7,8 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "jest --runInBand --detectOpenHandles",
+    "verify:perf": "node ../scripts/verify-performance.mjs",
+    "verify:db": "node scripts/verify-db-plans.js",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
@@ -18,6 +20,7 @@
     "@faker-js/faker": "^10.3.0",
     "@neon/auth": "^0.8.2",
     "bcrypt": "^6.0.0",
+    "compression": "^1.8.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",

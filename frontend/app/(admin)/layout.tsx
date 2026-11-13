@@ -1,4 +1,8 @@
 import { Navbar, ProtectedRoute } from '@/components/layout';
+import { QueryProvider, AuthProvider } from '@/components/providers';
+import { Toaster } from '@/components/ui/sonner';
+
+export const dynamic = 'force-dynamic';
 
 export default function AdminLayout({
   children,
@@ -6,9 +10,14 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute allowedRoles={['admin']}>
-      <Navbar />
-      <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
-    </ProtectedRoute>
+    <QueryProvider>
+      <AuthProvider>
+        <ProtectedRoute allowedRoles={['admin']}>
+          <Navbar />
+          <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
+          <Toaster position="top-right" />
+        </ProtectedRoute>
+      </AuthProvider>
+    </QueryProvider>
   );
 }

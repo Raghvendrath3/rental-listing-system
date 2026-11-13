@@ -4,12 +4,16 @@ const testRoutes = require('./routes/tests.routes');
 
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
+const requestObservability = require('./middlewares/requestObservability');
 const initializeDbContext = require('./middlewares/dbContext');
 const csrfProtection = require('./middlewares/csrfProtection');
 
 const app = express();
 
 // global middleware
+app.use(requestObservability);
+app.use(compression());
 app.use(express.json());
 const allowedOrigins = new Set(
   [

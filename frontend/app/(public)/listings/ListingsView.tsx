@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import api, { getErrorMessage } from '@/lib/api';
@@ -82,25 +82,39 @@ function ListingCardsSkeleton() {
 
 export default function ListingsView({
   initialData,
+  initialFilters,
 }: {
   initialData: PaginatedResponse<PublicListing> | null;
+  initialFilters: ListingFilters;
 }) {
-  const [search, setSearch] = useState('');
-  const [city, setCity] = useState('');
-  const [type, setType] = useState<ListingType | 'all'>('all');
-  const [priceMin, setPriceMin] = useState<string>('');
-  const [priceMax, setPriceMax] = useState<string>('');
-  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [search, setSearch] = useState(initialFilters.q ?? '');
+  const [city, setCity] = useState(initialFilters.city ?? '');
+  const [type, setType] = useState<ListingType | 'all'>(initialFilters.type ?? 'all');
+  const [priceMin, setPriceMin] = useState(initialFilters.priceMin === undefined ? '' : String(initialFilters.priceMin));
+  const [priceMax, setPriceMax] = useState(initialFilters.priceMax === undefined ? '' : String(initialFilters.priceMax));
+  const [page, setPage] = useState(initialFilters.page ?? DEFAULT_PAGE);
+  const [limit, setLimit] = useState(initialFilters.limit ?? DEFAULT_LIMIT);
   const [showFilters, setShowFilters] = useState(false);
 
   const debouncedSearch = useDebounce(search, SEARCH_DEBOUNCE_MS);
   const debouncedCity = useDebounce(city, SEARCH_DEBOUNCE_MS);
   const queryClient = useQueryClient();
 
-  // Reset page when filters change
+  const filterSignature = JSON.stringify([
+    debouncedSearch,
+    debouncedCity,
+    type,
+    priceMin,
+    priceMax,
+  ]);
+  const previousFilterSignature = useRef(filterSignature);
+
   useEffect(() => {
-    setPage(DEFAULT_PAGE);
-  }, [debouncedSearch, debouncedCity, type, priceMin, priceMax]);
+    if (previousFilterSignature.current !== filterSignature) {
+      setPage(DEFAULT_PAGE);
+    }
+    previousFilterSignature.current = filterSignature;
+  }, [filterSignature]);
 
   const filters: ListingFilters = {
     q: debouncedSearch || undefined,
@@ -109,11 +123,16 @@ export default function ListingsView({
     priceMin: priceMin ? Number(priceMin) : undefined,
     priceMax: priceMax ? Number(priceMax) : undefined,
     page,
-    limit: DEFAULT_LIMIT,
+    limit,
   };
 
-  const isDefaultQuery = !debouncedSearch && !debouncedCity && type === 'all'
-    && !priceMin && !priceMax && page === DEFAULT_PAGE;
+  const isInitialQuery = filters.q === initialFilters.q
+    && filters.city === initialFilters.city
+    && filters.type === initialFilters.type
+    && filters.priceMin === initialFilters.priceMin
+    && filters.priceMax === initialFilters.priceMax
+    && filters.page === initialFilters.page
+    && filters.limit === initialFilters.limit;
   const {
     data,
     isLoading,
@@ -124,11 +143,25 @@ export default function ListingsView({
   } = useQuery({
     queryKey: ['listings', filters],
     queryFn: ({ signal }) => fetchListings(filters, signal),
-    initialData: isDefaultQuery ? initialData ?? undefined : undefined,
+    initialData: isInitialQuery ? initialData ?? undefined : undefined,
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
     gcTime: 5 * 60 * 1000,
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (filters.q) params.set('q', filters.q);
+    if (filters.city) params.set('city', filters.city);
+    if (filters.type) params.set('type', filters.type);
+    if (filters.priceMin !== undefined) params.set('priceMin', String(filters.priceMin));
+    if (filters.priceMax !== undefined) params.set('priceMax', String(filters.priceMax));
+    if (filters.page !== DEFAULT_PAGE) params.set('page', String(filters.page));
+    if (filters.limit !== DEFAULT_LIMIT) params.set('limit', String(filters.limit));
+    const query = params.toString();
+    const url = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    window.history.replaceState(window.history.state, '', url);
+  }, [filters.q, filters.city, filters.type, filters.priceMin, filters.priceMax, filters.page, filters.limit]);
 
   useEffect(() => {
     if (!data || isPlaceholderData || page >= data.meta.totalPages) return;
@@ -160,6 +193,7 @@ export default function ListingsView({
     setPriceMin('');
     setPriceMax('');
     setPage(DEFAULT_PAGE);
+    setLimit(DEFAULT_LIMIT);
   };
 
   return (
