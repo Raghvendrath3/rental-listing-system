@@ -64,3 +64,6 @@ lerna-debug.log*
 .VSCodeCounter/
 .env.docker
 admin_seed.sql
+.agents\skills
+.claude
+.vscode
