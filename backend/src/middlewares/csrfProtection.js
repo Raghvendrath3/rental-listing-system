@@ -13,7 +13,12 @@ module.exports = function csrfProtection(req, res, next) {
     return next(new AppError('CSRF validation failed', 403));
   }
   if (req.cookies && req.cookies.rental_session && req.get('Sec-Fetch-Site') === 'cross-site') {
-    return next(new AppError('Cross-site request denied', 403));
+    const hasTrustedOrigin = origin
+      && req.app.locals.allowedOrigins.has(origin)
+      && req.get('X-Requested-With') === 'XMLHttpRequest';
+    if (!hasTrustedOrigin) {
+      return next(new AppError('Cross-site request denied', 403));
+    }
   }
 
   next();

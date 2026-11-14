@@ -1,7 +1,7 @@
 // scripts/seedAdmin.js
 require("dotenv").config();
 const bcrypt = require("bcrypt");
-const pool = require("../db");
+const pool = require("../config/db");
 
 async function seedAdmin() {
   const hash = await bcrypt.hash("Admin@123", 12);
