@@ -9,9 +9,10 @@ const requestObservability = require('./middlewares/requestObservability');
 const initializeDbContext = require('./middlewares/dbContext');
 const csrfProtection = require('./middlewares/csrfProtection');
 
-app.set('trust proxy', 1);
 
 const app = express();
+
+app.set('trust proxy', 1);
 
 // global middleware
 app.use(requestObservability);
