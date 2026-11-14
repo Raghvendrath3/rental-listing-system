@@ -14,7 +14,7 @@ const nextConfig = {
     return [
       {
         source: '/api/v1/:path*',
-        destination: 'https://onrender.com*',
+        destination: 'https://rental-listing-system.onrender.com*',
       },
     ];
   },
