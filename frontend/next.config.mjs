@@ -10,6 +10,14 @@ const nextConfig = {
     unoptimized: true, // Revisit responsive sizes, AVIF/WebP, and below-the-fold lazy loading if photos are added.
   },
   output: 'standalone',
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: 'https://onrender.com*',
+      },
+    ];
+  },
 }
 
 const withBundleAnalyzer = bundleAnalyzer({
