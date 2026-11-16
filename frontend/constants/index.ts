@@ -14,6 +14,8 @@ export const API_BASE_URL = isServer
       ? '/api/v1'
       : 'http://localhost:5000/api/v1');
 
+export const BROWSER_API_BASE_URL = '/api/v1';
+
 // Listing types enforced by DB CHECK constraint
 export const LISTING_TYPES = [
   'apartment',
