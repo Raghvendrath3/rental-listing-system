@@ -1,5 +1,7 @@
 // Domain types derived from backend API contract
 
+export * from './health';
+
 export type Role = 'user' | 'owner' | 'admin';
 export type ListingStatus = 'draft' | 'published' | 'archived';
 export type OwnerRequestStatus = 'none' | 'pending' | 'approved' | 'rejected';
