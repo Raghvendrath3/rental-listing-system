@@ -4,10 +4,12 @@ const { connectDB } = require('./config/db');
 
 const PORT = process.env.PORT || 3000;
 
-const start = async () => {
-  await connectDB();
+const start = () => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    connectDB().catch(error => {
+      console.error('PostgreSQL connection failed', error.message);
+    });
   });
 };
 

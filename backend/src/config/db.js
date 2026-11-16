@@ -155,15 +155,9 @@ async function withTransaction(callback) {
 }
 
 const connectDB = async () => {
-  try {
-    const client = await pool.connect();
-    console.log('PostgreSQL connected successfully');
-    client.release();
-  } catch (err) {
-    console.error('PostgreSQL connection failed');
-    console.error(err.message);
-    process.exit(1);
-  }
+  const client = await pool.connect();
+  console.log('PostgreSQL connected successfully');
+  client.release();
 };
 
 module.exports = {

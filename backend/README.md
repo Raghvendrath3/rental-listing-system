@@ -67,11 +67,66 @@ src/
 
 ## 🩺 Health Check
 
-The application exposes a health endpoint for monitoring and deployment validation:
+The health routes are public, bypass application authentication, and send
+`Cache-Control: no-store`. Configure Render's health check path as
+`/api/v1/health/ready`; the Docker image uses `/api/v1/health/live`.
 
-GET /health
+### `GET /api/v1/health/live`
 
-Returns a simple status response indicating the service is running.
+Checks only that the API process is running. It does not contact PostgreSQL:
+
+```json
+{ "status": "ok", "timestamp": "2026-11-16T04:56:12.000Z" }
+```
+
+### `GET /api/v1/health/ready`
+
+Runs a PostgreSQL `SELECT 1` with a two-second timeout. It returns HTTP 503
+when the database is unavailable; otherwise it returns HTTP 200 (including when
+database latency is degraded):
+
+```json
+{ "status": "ok", "timestamp": "2026-11-16T04:56:12.000Z" }
+```
+
+### `GET /api/v1/health`
+
+Returns the detailed report and uses the same HTTP status rule as readiness.
+Database latency above 500 ms reports `degraded`; a failed database check
+reports `down` and HTTP 503. Error details in this response are generic.
+
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-11-16T04:56:12.000Z",
+  "service": {
+    "name": "rentalhub-api",
+    "version": "1.0.0",
+    "environment": "production",
+    "commit": "abc123"
+  },
+  "uptime": { "seconds": 8653.2, "human": "0d 2h 24m" },
+  "checks": {
+    "database": {
+      "status": "up",
+      "latencyMs": 12.4,
+      "pool": { "total": 3, "idle": 2, "waiting": 0 }
+    }
+  },
+  "system": {
+    "memory": { "rssMb": 68.1, "heapUsedMb": 21.3, "heapTotalMb": 32.8 },
+    "nodeVersion": "v18.20.8"
+  }
+}
+```
+
+Set `HEALTH_DETAILS=false` to limit the full health response to `status`,
+`timestamp`, and `uptime`. `APP_VERSION` can override the package version;
+`GIT_SHA` or `RENDER_GIT_COMMIT` provides the deployed commit. Health checks are
+not rate-limited by the current application, and are mounted before route-level
+authentication. If the frontend origin is not allowed by CORS, add its exact
+origin to `FRONTEND_URL` or the comma-separated `CORS_ORIGINS` setting; do not
+open CORS to all origins.
 
 ---
 
