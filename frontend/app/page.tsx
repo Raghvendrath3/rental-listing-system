@@ -198,6 +198,7 @@ export default function LandingPage() {
             <Link href="/listings" className="hover:text-foreground transition-colors">Browse</Link>
             <Link href="/login" className="hover:text-foreground transition-colors">Sign In</Link>
             <Link href="/register" className="hover:text-foreground transition-colors">Register</Link>
+            <Link href="/status" className="hover:text-foreground transition-colors">System Status</Link>
           </div>
         </div>
       </footer>
