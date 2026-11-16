@@ -140,7 +140,7 @@ export function useHealthCheck(intervalMs: number) {
     lastCheckedAt,
     secondsSinceLastCheck: lastCheckedAt === null
       ? null
-      : Math.floor((now - lastCheckedAt) / 1000),
+      : Math.max(0, Math.floor((now - lastCheckedAt) / 1000)),
     isRefreshing,
     refresh
   };
