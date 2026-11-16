@@ -67,3 +67,4 @@ admin_seed.sql
 .agents\skills
 .claude
 .vscode
+next-env.d.ts

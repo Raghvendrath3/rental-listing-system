@@ -53,7 +53,7 @@ export default async function ListingsPage({
     if (value !== undefined) params.set(key, String(value));
   });
   const response = await fetch(`${apiBaseUrl}/listings?${params}`, {
-    next: { revalidate: 30 },
+    next: { revalidate: 60 },
   });
 
   if (!response.ok) {
