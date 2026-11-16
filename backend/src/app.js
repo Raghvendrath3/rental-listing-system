@@ -1,5 +1,5 @@
 const express = require("express");
-const healthRoutes = require("./routes/healths.routes");
+const healthRoutes = require("./routes/health.routes");
 const testRoutes = require('./routes/tests.routes');
 
 const cors = require('cors');
