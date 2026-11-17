@@ -104,6 +104,14 @@ function googleLogin(req, res, next) {
 }
 
 async function googleCallback(req, res) {
+  console.log('oauth callback', {
+  host: req.headers.host,
+  xfh: req.headers['x-forwarded-host'],
+  hasCookieHeader: Boolean(req.headers.cookie),
+  hasStateCookie: Boolean(stateCookie),
+  hasStateQuery: Boolean(stateQuery),
+  lengthsMatch: stateCookie?.length === stateQuery?.length,
+});
   const stateCookie = req.cookies && req.cookies[OAUTH_STATE_COOKIE];
   const stateQuery = req.query.state;
   const clearStateOptions = cookieOptions();
