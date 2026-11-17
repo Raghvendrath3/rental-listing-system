@@ -104,6 +104,11 @@ function googleLogin(req, res, next) {
 }
 
 async function googleCallback(req, res) {
+
+  const stateCookie = req.cookies && req.cookies[OAUTH_STATE_COOKIE];
+  const stateQuery = req.query.state;
+
+  
   console.log('oauth callback', {
   host: req.headers.host,
   xfh: req.headers['x-forwarded-host'],
@@ -112,8 +117,7 @@ async function googleCallback(req, res) {
   hasStateQuery: Boolean(stateQuery),
   lengthsMatch: stateCookie?.length === stateQuery?.length,
 });
-  const stateCookie = req.cookies && req.cookies[OAUTH_STATE_COOKIE];
-  const stateQuery = req.query.state;
+  
   const clearStateOptions = cookieOptions();
   delete clearStateOptions.maxAge;
   res.clearCookie(OAUTH_STATE_COOKIE, clearStateOptions);
